@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Brain } from "lucide-react";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -13,7 +13,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
+  const anchorLinks = [
     { name: "The Problem", href: "#problem" },
     { name: "AI Services", href: "#services" },
     { name: "Market Insight", href: "#market" },
@@ -43,7 +43,7 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link, i) => (
+            {anchorLinks.map((link, i) => (
               <motion.a
                 key={link.name}
                 href={link.href}
@@ -57,6 +57,12 @@ export default function Navbar() {
                 {link.name}
               </motion.a>
             ))}
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}>
+              <Link href="/diagnostic" className={`flex items-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors ${isScrolled ? "text-primary" : "text-primary"}`}>
+                <Brain size={14} />
+                CA Diagnostic
+              </Link>
+            </motion.div>
             <motion.a
               href="#survey"
               whileHover={{ scale: 1.04, y: -1 }}
@@ -87,7 +93,7 @@ export default function Navbar() {
             className="absolute top-full left-0 w-full bg-background border-b border-border shadow-xl md:hidden"
           >
             <div className="flex flex-col p-4 gap-4">
-              {navLinks.map((link) => (
+              {anchorLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
@@ -97,6 +103,14 @@ export default function Navbar() {
                   {link.name}
                 </a>
               ))}
+              <Link
+                href="/diagnostic"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-primary font-semibold p-2 hover:bg-muted rounded-lg flex items-center gap-2"
+              >
+                <Brain size={16} />
+                CA Diagnostic Tool
+              </Link>
               <a
                 href="#survey"
                 onClick={() => setMobileMenuOpen(false)}

@@ -1,15 +1,18 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: FinAI CA API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: survey
+    description: Survey operations
+  - name: diagnostic
+    description: CA Diagnostic operations
 paths:
   /healthz:
     get:
@@ -24,6 +27,66 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /survey:
+    post:
+      operationId: submitSurvey
+      tags: [survey]
+      summary: Submit survey response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitSurveyBody"
+      responses:
+        "201":
+          description: Survey saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurveyResponse"
+        "400":
+          description: Invalid input
+
+  /diagnostic/analyze:
+    post:
+      operationId: analyzeDiagnostic
+      tags: [diagnostic]
+      summary: Submit CA exam data for AI diagnostic analysis (streams SSE)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeDiagnosticBody"
+      responses:
+        "200":
+          description: SSE stream of AI diagnostic report
+        "400":
+          description: Invalid input
+
+  /diagnostic/{id}:
+    get:
+      operationId: getDiagnostic
+      tags: [diagnostic]
+      summary: Get a saved diagnostic report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Diagnostic record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiagnosticResponse"
+        "404":
+          description: Not found
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +97,122 @@ components:
       required:
         - status
 
+    SubmitSurveyBody:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: string
+        gender:
+          type: string
+        qualification:
+          type: string
+        qualificationOther:
+          type: ["string", "null"]
+        services:
+          type: array
+          items:
+            type: string
+        experience:
+          type: ["string", "null"]
+        ideas:
+          type: string
+      required:
+        - name
+        - age
+        - gender
+        - qualification
+        - services
+        - ideas
+
+    SurveyResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - createdAt
+
+    SubjectScore:
+      type: object
+      properties:
+        subject:
+          type: string
+        score:
+          type: ["integer", "null"]
+        maxScore:
+          type: integer
+      required:
+        - subject
+        - maxScore
+
+    AnalyzeDiagnosticBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        examLevel:
+          type: string
+        attemptNumber:
+          type: integer
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectScore"
+        weakAreas:
+          type: array
+          items:
+            type: string
+        studyHours:
+          type: ["string", "null"]
+      required:
+        - name
+        - email
+        - examLevel
+        - attemptNumber
+        - subjects
+        - weakAreas
+
+    DiagnosticResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        examLevel:
+          type: string
+        attemptNumber:
+          type: integer
+        subjectsJson:
+          type: string
+        weakAreas:
+          type: array
+          items:
+            type: string
+        studyHours:
+          type: ["string", "null"]
+        report:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - examLevel
+        - attemptNumber
+        - subjectsJson
+        - weakAreas
+        - createdAt
