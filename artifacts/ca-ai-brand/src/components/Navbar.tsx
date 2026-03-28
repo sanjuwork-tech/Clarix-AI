@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
@@ -8,9 +8,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -32,33 +30,41 @@ export default function Navbar() {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="group flex items-center gap-2 cursor-pointer">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-display font-bold text-xl shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
+            <motion.div
+              whileHover={{ scale: 1.08, rotate: 5 }}
+              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-display font-bold text-xl shadow-lg shadow-primary/20"
+            >
               F
-            </div>
-            <span className={`font-display font-bold text-2xl tracking-tight ${isScrolled ? 'text-foreground' : 'text-white'}`}>
+            </motion.div>
+            <span className={`font-display font-bold text-2xl tracking-tight ${isScrolled ? "text-foreground" : "text-white"}`}>
               FinAI<span className="text-primary">CA</span>
             </span>
           </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
+            {navLinks.map((link, i) => (
+              <motion.a
                 key={link.name}
                 href={link.href}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
                 className={`text-sm font-medium hover:text-primary transition-colors ${
-                  isScrolled ? 'text-muted-foreground' : 'text-white/80 hover:text-white'
+                  isScrolled ? "text-muted-foreground" : "text-white/80 hover:text-white"
                 }`}
               >
                 {link.name}
-              </a>
+              </motion.a>
             ))}
-            <a
-              href="#waitlist"
-              className="px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            <motion.a
+              href="#survey"
+              whileHover={{ scale: 1.04, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              className="px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-xl transition-all"
             >
-              Join Waitlist
-            </a>
+              Take Survey
+            </motion.a>
           </nav>
 
           {/* Mobile Menu Toggle */}
@@ -72,33 +78,36 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Nav */}
-      {mobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full left-0 w-full bg-background border-b border-border shadow-xl md:hidden"
-        >
-          <div className="flex flex-col p-4 gap-4">
-            {navLinks.map((link) => (
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-full left-0 w-full bg-background border-b border-border shadow-xl md:hidden"
+          >
+            <div className="flex flex-col p-4 gap-4">
+              {navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-foreground font-medium p-2 hover:bg-muted rounded-lg"
+                >
+                  {link.name}
+                </a>
+              ))}
               <a
-                key={link.name}
-                href={link.href}
+                href="#survey"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-foreground font-medium p-2 hover:bg-muted rounded-lg"
+                className="w-full text-center px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold mt-2"
               >
-                {link.name}
+                Take Survey
               </a>
-            ))}
-            <a
-              href="#waitlist"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold mt-2"
-            >
-              Join Waitlist
-            </a>
-          </div>
-        </motion.div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
