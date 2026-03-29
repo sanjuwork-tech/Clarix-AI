@@ -1,8 +1,41 @@
 import { Router, type IRouter } from "express";
 import { db, diagnosticsTable } from "@workspace/db";
 import { AnalyzeDiagnosticBody, GetDiagnosticParams } from "@workspace/api-zod";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import OpenAI from "openai";
 import { eq } from "drizzle-orm";
+
+// Mercury 2 client — OpenAI-compatible API from Inception Labs
+const mercury = new OpenAI({
+  apiKey: process.env.INCEPTION_API_KEY ?? "missing",
+  baseURL: "https://api.inceptionlabs.ai/v1",
+});
+
+const SYSTEM_PROMPT = `You are a CA Final exam diagnostic specialist with deep knowledge of the ICAI CA Final curriculum, past papers, RTPs, MTPs, and marking schemes.
+
+Rules you must follow:
+- Never give generic advice like "study harder" or "revise more"
+- Every recommendation must name a SPECIFIC chapter, standard (like Ind AS 115, SA 706), or ICAI module
+- Clearly distinguish: recall gaps vs application gaps vs time management gaps
+- If a subject score is under 40, flag it as CRITICAL and name the most likely failure mode
+- Be direct and honest — do not soften failure analysis
+- Reference actual ICAI paper patterns and examiner tendencies
+
+Report structure (use these exact headings):
+
+## 1. Failure Pattern Summary
+2–3 sentences. What does the data say about how this student is failing?
+
+## 2. Paper-by-Paper Diagnosis
+For each subject: what the score reveals, the most likely failure mode (recall/application/time), and the specific ICAI chapter or standard being missed.
+
+## 3. Top 3 Critical Fixes
+Ranked by impact on clearing the exam. Be specific — name the exact topic, standard, or skill to fix.
+
+## 4. 8-Week Study Plan
+Based on available daily study hours. Week-by-week priorities, subject order, and which ICAI materials to use (Study Material, RTP, MTP, past papers). State clearly what NOT to waste time on.
+
+## 5. One Honest Call-Out
+One thing this student currently believes about their preparation that is wrong — and the correct framing.`;
 
 const router: IRouter = Router();
 
@@ -29,65 +62,32 @@ router.post("/diagnostic/analyze", async (req, res): Promise<void> => {
     })
     .returning();
 
-  req.log.info({ diagnosticId: diagnostic.id }, "Diagnostic analysis started");
+  req.log.info({ diagnosticId: diagnostic.id }, "Diagnostic analysis started via Mercury 2");
 
-  const subjectsSummary = subjects
+  // Build structured student data string (mirrors the guide's format)
+  const subjectLines = subjects
     .map((s: { subject: string; score?: number | null; maxScore: number }) => {
-      const score = s.score != null ? `${s.score}/${s.maxScore}` : `Not attempted (max: ${s.maxScore})`;
+      const score = s.score != null ? `${s.score}/${s.maxScore}` : "Not attempted";
       const pct = s.score != null ? Math.round((s.score / s.maxScore) * 100) : 0;
-      const status = s.score == null ? "Not attempted" : pct >= 40 ? "Pass" : "FAIL";
-      return `  - ${s.subject}: ${score} (${status}${s.score != null ? `, ${pct}%` : ""})`;
+      const status =
+        s.score == null ? "Not attempted" : pct >= 40 ? "PASS" : "FAIL — CRITICAL";
+      return `- ${s.subject}: ${score} (${status})`;
     })
     .join("\n");
 
-  const systemPrompt = `You are an expert CA (Chartered Accountant) exam diagnostic AI built on ICAI's own material. You analyze CA students' exam performance with deep knowledge of:
-- ICAI's exam patterns, marking schemes, and question types for Foundation, Intermediate, and Final levels
-- Common failure patterns and conceptual gaps
-- Effective study strategies specific to each CA paper
-- India's CA examination system
+  const studentData = `
+Name: ${name}
+CA Level: ${examLevel}
+Attempt: ${attemptNumber}${attemptNumber === 1 ? "st" : attemptNumber === 2 ? "nd" : attemptNumber === 3 ? "rd" : "th"}
+Daily study hours: ${studyHours ?? "Not specified"}
 
-Provide specific, actionable, deeply personalized diagnostic reports. Be honest about failures but encouraging. Format your response using markdown with clear sections.`;
+Subject scores (last attempt):
+${subjectLines}
 
-  const userPrompt = `Please provide a comprehensive CA exam diagnostic report for:
+Self-reported weak areas: ${weakAreas.length > 0 ? weakAreas.join(", ") : "None specified"}
+`.trim();
 
-**Student:** ${name}
-**CA Level:** ${examLevel}
-**Attempt Number:** ${attemptNumber}
-**Weekly Study Hours:** ${studyHours ?? "Not specified"}
-
-**Subject Performance:**
-${subjectsSummary}
-
-**Self-identified Weak Areas:** ${weakAreas.length > 0 ? weakAreas.join(", ") : "None specified"}
-
-Generate a detailed diagnostic report with these sections:
-
-## 1. Performance Overview
-Brief summary of overall performance, pass/fail status, and key observations.
-
-## 2. Failure Pattern Analysis
-What specific patterns explain why they're failing. Be specific about which subjects and why.
-
-## 3. Subject-by-Subject Breakdown
-For each subject: what the score reveals about their conceptual understanding, common mistakes ICAI examiners see, and what's likely being tested that they're missing.
-
-## 4. Root Cause Diagnosis
-The 3-5 core reasons they're not passing — concept gaps, exam technique, time management, revision strategy, etc.
-
-## 5. Your Precision Study Plan
-A specific, week-by-week or phase-based action plan covering:
-- Priority subjects to focus on (most marks to gain)
-- Specific ICAI materials and modules to study
-- Practice test strategy (RTPs, MTPs, past papers)
-- What NOT to waste time on
-
-## 6. Examiner's Secret
-2-3 insider tips about how ICAI sets papers for ${examLevel} that most students don't realize.
-
-## 7. Motivational Message
-A brief, genuine, personalized message — acknowledge their effort and give them concrete hope.
-
-Be specific, data-driven, and actionable. Reference actual ICAI paper patterns and marking schemes.`;
+  const userPrompt = `Analyse this CA student and produce their full diagnostic report:\n\n${studentData}`;
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -95,22 +95,30 @@ Be specific, data-driven, and actionable. Reference actual ICAI paper patterns a
 
   let fullReport = "";
 
-  const stream = await openai.chat.completions.create({
-    model: "gpt-5.2",
-    max_completion_tokens: 8192,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    stream: true,
-  });
+  try {
+    const stream = await mercury.chat.completions.create({
+      model: "mercury-2",
+      max_tokens: 3000,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userPrompt },
+      ],
+      stream: true,
+    });
 
-  for await (const chunk of stream) {
-    const content = chunk.choices[0]?.delta?.content;
-    if (content) {
-      fullReport += content;
-      res.write(`data: ${JSON.stringify({ content })}\n\n`);
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        fullReport += content;
+        res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      }
     }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "AI analysis failed";
+    req.log.error({ err }, "Mercury 2 stream error");
+    res.write(`data: ${JSON.stringify({ error: msg })}\n\n`);
+    res.end();
+    return;
   }
 
   await db

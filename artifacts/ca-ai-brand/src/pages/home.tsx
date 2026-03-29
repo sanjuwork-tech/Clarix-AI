@@ -48,7 +48,9 @@ export default function Home() {
             className="btn-primary"
             onClick={() => scrollTo(ctaRef)}
           >
-            Get Your Diagnostic — ₹499
+            Get Your Diagnostic —{" "}
+            <s style={{ opacity: 0.6, fontWeight: 400 }}>₹499</s>{" "}
+            Free
           </button>
           <button className="btn-ghost" onClick={() => scrollTo(howRef)}>
             <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -241,7 +243,12 @@ export default function Home() {
       {/* ── CTA ────────────────────────────────────────────── */}
       <div ref={ctaRef} style={{ padding: "80px 40px", textAlign: "center" }}>
         <div style={{ maxWidth: 540, margin: "0 auto" }}>
-          <div className="cta-price">One-time · ₹499 · No subscription</div>
+          <div className="cta-price">
+            One-time ·{" "}
+            <s style={{ opacity: 0.5 }}>₹499</s>{" "}
+            <span style={{ color: AMBER_LT }}>Free for first 50 aspirants</span>{" "}
+            · No subscription
+          </div>
           <div className="cta-h">Get your diagnostic report.</div>
           <p style={{ fontSize: 14, color: mutedC, lineHeight: 1.65, marginBottom: 36 }}>
             Stop revising blindly. Find out exactly which gaps are costing you marks —
@@ -249,13 +256,15 @@ export default function Home() {
           </p>
           <Link href="/diagnostic">
             <button className="btn-primary" style={{ fontSize: 13, padding: "16px 36px" }}>
-              Start Your Diagnostic — ₹499
+              Start Your Diagnostic —{" "}
+              <s style={{ opacity: 0.55, fontWeight: 400 }}>₹499</s>{" "}
+              Free →
             </button>
           </Link>
           <p className="price-note" style={{ marginTop: 16 }}>
             Delivered within 48 hours ·{" "}
             <span className="price-note-amber">ICAI-mapped AI analysis</span>{" "}
-            · CA Final only
+            · Free for first 50 aspirants only
           </p>
         </div>
       </div>

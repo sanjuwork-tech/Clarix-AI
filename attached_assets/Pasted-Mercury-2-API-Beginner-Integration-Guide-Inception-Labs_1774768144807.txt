@@ -1,0 +1,173 @@
+Mercury 2 API — Beginner Integration Guide
+Inception Labs · Free tier · OpenAI-compatible
+Step 1 — Setup
+Install Python and the requests library
+You need Python installed on your computer. Think of Python as the language your computer and the AI speak to each other. Open your terminal (on Mac: search "Terminal", on Windows: search "Command Prompt") and run these two commands one by one:
+Terminal / Command Prompt
+Copy
+# First, check if Python is installed
+python --version
+
+# If you see "Python 3.x.x", you're good. If not, go to python.org and download it.
+
+# Then install the requests library (used to talk to APIs)
+pip install requests
+✓
+What "pip install" means
+pip is Python's package manager — like an app store for code tools. You only run this once.
+i
+Recommended editor
+Download VS Code (free at code.visualstudio.com) — it's the best place to write and run your Python files. Much easier than Notepad.
+Step 2 — API Key
+Get and store your Mercury 2 API key safely
+Your API key is like a password that lets your code use Mercury 2. You already have access — go to the Inception Labs dashboard, go to "API Keys", create one, and copy it. Now store it safely:
+01
+Create a new folder on your desktop called uttirna_project
+This is where all your project files will live.
+02
+Inside that folder, create a file called .env (yes, just dot-env, no other name)
+In VS Code: File → New File → save as ".env" in your project folder.
+03
+Paste this inside your .env file, replacing the placeholder with your real key
+.env file
+Copy
+INCEPTION_API_KEY=your_actual_key_here
+!
+Never paste your API key directly in Python code
+If you accidentally share your code or push it to GitHub, anyone can see and use your key. Always load it from .env. Run pip install python-dotenv to use .env files.
+Step 3 — First Call
+Make your very first API call — "Hello Mercury"
+Create a new file called test.py in your project folder. Copy this exact code in. This is the simplest possible call — just to confirm everything is connected and working.
+test.py — your first API call
+Copy
+import requests
+import os
+from dotenv import load_dotenv
+
+# Load your API key from the .env file
+load_dotenv()
+api_key = os.getenv('INCEPTION_API_KEY')
+
+# Build the request — this is the "letter" you send to Mercury 2
+response = requests.post(
+    'https://api.inceptionlabs.ai/v1/chat/completions',
+    headers={
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'model': 'mercury-2',
+        'messages': [
+            {'role': 'user', 'content': 'Say hello and confirm you are working.'}
+        ]
+    }
+)
+
+# Print what Mercury 2 replied
+result = response.json()
+print(result['choices'][0]['message']['content'])
+Now run it in your terminal: python test.py — if you see a response from Mercury 2, your connection is working.
+i
+What each part means
+"messages" is the conversation. "role: user" is you speaking. "role: assistant" would be Mercury 2's reply. "model: mercury-2" tells the API which AI to use.
+Step 4 — Build It
+Build the actual CA diagnostic tool
+Now create a file called diagnostic.py. This is the real thing — it takes a student's intake form data and produces their diagnostic report. The system prompt is the set of instructions you give Mercury 2 before the student's data comes in.
+diagnostic.py — the CA diagnostic engine
+str: response = requests.post( 'https://api.inceptionlabs.ai/v1/chat/completions', headers={ 'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json' }, json={ 'model': 'mercury-2', 'messages': [ {'role': 'system', 'content': SYSTEM_PROMPT}, {'role': 'user', 'content': f'Analyse this student and produce their diagnostic report:\\n\\n{student_data}'} ], 'max_tokens': 2000 } ) result = response.json() return result['choices'][0]['message']['content'] # --- TEST: paste a student's intake form data here --- sample_student = """ Group: Group 1 (Paper 1-4) Attempt number: 3rd attempt Exam date: November 2025 Daily study hours: 5 hours Study setup: Self-study using ICAI Study Material Last attempt scores: - Paper 1 Financial Reporting: 38 - Paper 2 Advanced FM (AFM): 31 - Paper 3 Advanced Auditing: 42 - Paper 4 EIS & SM: 55 Self-assessed weaknesses: - FR: Weak on Ind AS (especially Ind AS 115 revenue recognition and Ind AS 116 leases) - AFM: Weak on derivatives, options pricing, foreign exchange - Audit: Shaky on SA application in case studies - EIS: Strong Question type struggle: More with application/case study questions than theory Time management: Usually runs out of time in AFM and FR Student's own diagnosis: "I think I need to re-read the entire AFM book from scratch" """ print("Running diagnostic...\n") report = run_diagnostic(sample_student) print(report)">Copy
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv('INCEPTION_API_KEY')
+
+# This is the "brain" — instructions Mercury 2 follows for every student
+SYSTEM_PROMPT = '''
+You are a CA Final exam diagnostic specialist with deep knowledge 
+of the ICAI CA Final curriculum, past papers, RTPs, and MTPs.
+
+Rules you must follow:
+- Never give generic advice like "study harder"
+- Every recommendation must name a SPECIFIC chapter or standard
+- Distinguish: recall gaps vs application gaps vs time management gaps
+- If score under 40, flag as critical — name the likely failure mode
+- Be direct and honest
+
+Report structure to follow:
+  1. FAILURE PATTERN SUMMARY (2-3 sentences)
+  2. PAPER-BY-PAPER DIAGNOSIS
+  3. TOP 3 CRITICAL FIXES (ranked by pass impact)
+  4. 8-WEEK STUDY PLAN (based on available daily hours)
+  5. ONE HONEST CALL-OUT (something the student believes that's wrong)
+'''
+
+def run_diagnostic(student_data: str) -> str:
+    response = requests.post(
+        'https://api.inceptionlabs.ai/v1/chat/completions',
+        headers={
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        },
+        json={
+            'model': 'mercury-2',
+            'messages': [
+                {'role': 'system', 'content': SYSTEM_PROMPT},
+                {'role': 'user',   'content': f'Analyse this student:\n\n{student_data}'}
+            ],
+            'max_tokens': 2000  # max length of the report
+        }
+    )
+    result = response.json()
+    return result['choices'][0]['message']['content']
+
+
+# TEST — paste a real student's intake form data here
+sample_student = """
+Group: Group 1
+Attempt: 3rd
+Exam date: November 2025
+Daily hours: 5
+
+Last attempt scores:
+- Financial Reporting: 38
+- AFM: 31
+- Audit: 42
+- EIS & SM: 55
+
+Weaknesses: FR (Ind AS 115, 116), AFM (derivatives, options)
+Struggles more with: application/case study questions
+Time issue: runs out of time in AFM and FR
+
+Their own diagnosis: 'I need to re-read the entire AFM book'
+"""
+
+print("Running diagnostic...\n")
+report = run_diagnostic(sample_student)
+print(report)
+Run it: python diagnostic.py — you should see a full structured diagnostic report in your terminal.
+Step 5 — Save to File
+Save the report as a .txt file to send to students
+Add these 4 lines at the bottom of diagnostic.py to automatically save every report as a text file you can email to the student:
+Add to bottom of diagnostic.py
+Copy
+# Save the report to a file you can send
+with open('diagnostic_report.txt', 'w', encoding='utf-8') as f:
+    f.write(report)
+
+print('\nReport saved to diagnostic_report.txt')
+print('Open this file, review it as a CA aspirant, then send to student.')
+!
+Always review before sending
+Mercury 2 can hallucinate ICAI-specific details — wrong SA numbers, wrong Ind AS references. You read every report before it goes to a student. Your quality check is the product's credibility.
+✓
+Your workflow for each paid student
+Receive Tally form → copy their answers into the sample_student variable → run python diagnostic.py → open the .txt file → review and correct → paste into your PDF template → email to student. That's it.
+Step 6 — File structure
+Your complete project folder should look like this
+uttirna_project / folder structure
+uttirna_project/
+├── .env                    # your API key — never share this
+├── test.py                 # your "hello world" test
+├── diagnostic.py           # the main diagnostic engine
+└── diagnostic_report.txt   # auto-generated per student
