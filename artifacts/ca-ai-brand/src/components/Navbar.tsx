@@ -1,127 +1,50 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Brain } from "lucide-react";
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const anchorLinks = [
-    { name: "The Problem", href: "#problem" },
-    { name: "AI Services", href: "#services" },
-    { name: "Market Insight", href: "#market" },
-    { name: "About", href: "#about" },
-  ];
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "glass-panel py-3" : "bg-transparent py-5"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center">
-          {/* Logo */}
-          <Link href="/" className="group flex items-center gap-2 cursor-pointer">
-            <motion.div
-              whileHover={{ scale: 1.08, rotate: 5 }}
-              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-display font-bold text-xl shadow-lg shadow-primary/20"
-            >
-              F
-            </motion.div>
-            <span className={`font-display font-bold text-2xl tracking-tight ${isScrolled ? "text-foreground" : "text-white"}`}>
-              FinAI<span className="text-primary">CA</span>
-            </span>
-          </Link>
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+      <div className="max-w-5xl mx-auto px-5 sm:px-8 h-12 flex items-center justify-between">
+        <Link href="/" className="font-sans font-semibold text-sm tracking-tight text-foreground">
+          N%rmayAI
+        </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            {anchorLinks.map((link, i) => (
-              <motion.a
-                key={link.name}
-                href={link.href}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                className={`text-sm font-medium hover:text-primary transition-colors ${
-                  isScrolled ? "text-muted-foreground" : "text-white/80 hover:text-white"
-                }`}
-              >
-                {link.name}
-              </motion.a>
-            ))}
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}>
-              <Link href="/diagnostic" className={`flex items-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors ${isScrolled ? "text-primary" : "text-primary"}`}>
-                <Brain size={14} />
-                CA Diagnostic
-              </Link>
-            </motion.div>
-            <motion.a
-              href="#survey"
-              whileHover={{ scale: 1.04, y: -1 }}
-              whileTap={{ scale: 0.97 }}
-              className="px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-xl transition-all"
-            >
-              Take Survey
-            </motion.a>
-          </nav>
+        <div className="hidden md:flex items-center gap-6">
+          <a href="#problem" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">The Problem</a>
+          <a href="#how-it-works" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
+          <a href="#built-on" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">About</a>
+          <Link href="/diagnostic" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">CA Diagnostic</Link>
+        </div>
 
-          {/* Mobile Menu Toggle */}
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 border border-border rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-medium text-muted-foreground tracking-widest uppercase">Meta · Limited Access</span>
+          </div>
           <button
-            className="md:hidden text-foreground p-2 bg-background/50 rounded-lg backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-1.5 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <div className="space-y-1">
+              <div className="w-4 h-px bg-current" />
+              <div className="w-4 h-px bg-current" />
+            </div>
           </button>
         </div>
       </div>
 
-      {/* Mobile Nav */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-background border-b border-border shadow-xl md:hidden"
-          >
-            <div className="flex flex-col p-4 gap-4">
-              {anchorLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-foreground font-medium p-2 hover:bg-muted rounded-lg"
-                >
-                  {link.name}
-                </a>
-              ))}
-              <Link
-                href="/diagnostic"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-primary font-semibold p-2 hover:bg-muted rounded-lg flex items-center gap-2"
-              >
-                <Brain size={16} />
-                CA Diagnostic Tool
-              </Link>
-              <a
-                href="#survey"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold mt-2"
-              >
-                Take Survey
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {menuOpen && (
+        <div className="md:hidden border-t border-border bg-background">
+          <div className="max-w-5xl mx-auto px-5 py-4 flex flex-col gap-3">
+            <a href="#problem" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">The Problem</a>
+            <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">How It Works</a>
+            <a href="#built-on" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">About</a>
+            <Link href="/diagnostic" onClick={() => setMenuOpen(false)} className="text-sm text-muted-foreground">CA Diagnostic</Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

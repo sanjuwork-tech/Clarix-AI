@@ -1,0 +1,257 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+  :root {
+    --ink: #0D0C0A; --ink2: #1A1915; --ink3: #252420;
+    --amber: #D4930A; --amber-lt: #F2B93B; --amber-dim: rgba(212,147,10,0.12);
+    --offwhite: #F0EDE6; --muted: #8A877E; --border: rgba(240,237,230,0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .page { background: var(--ink); color: var(--offwhite); font-family: 'DM Sans', sans-serif; font-weight: 300; width: 100%; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500; letter-spacing: -0.02em; color: var(--offwhite); display: flex; align-items: center; gap: 8px; }
+  .logo-dot { width: 8px; height: 8px; background: var(--amber); border-radius: 50%; animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+  .nav-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(212,147,10,0.3); padding: 4px 10px; border-radius: 2px; letter-spacing: .08em; text-transform: uppercase; }
+
+  hero { display: block; padding: 72px 40px 64px; border-bottom: 1px solid var(--border); }
+  .hero-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--amber); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+  .hero-eyebrow::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--amber); }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px,7vw,72px); font-weight: 600; line-height: 1.05; letter-spacing: -.02em; color: var(--offwhite); max-width: 680px; margin-bottom: 8px; }
+  h1 em { font-style: italic; color: var(--amber-lt); }
+  .hero-sub { font-size: 15px; color: var(--muted); line-height: 1.65; max-width: 440px; margin: 24px 0 40px; font-weight: 300; }
+  .cta-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .btn-primary { background: var(--amber); color: var(--ink); font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; padding: 14px 28px; border-radius: 2px; border: none; cursor: pointer; transition: background .2s, transform .15s; }
+  .btn-primary:hover { background: var(--amber-lt); transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--muted); font-size: 13px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: color .2s; }
+  .btn-ghost:hover { color: var(--offwhite); }
+  .price-note { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 16px; letter-spacing: .04em; }
+  .price-note span { color: var(--amber); }
+
+  .stat-strip { display: grid; grid-template-columns: repeat(3,1fr); border-bottom: 1px solid var(--border); }
+  .stat-item { padding: 32px 40px; border-right: 1px solid var(--border); }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 600; color: var(--offwhite); line-height: 1; margin-bottom: 6px; }
+  .stat-num span { color: var(--amber); font-size: 26px; }
+  .stat-label { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .problem-section { padding: 64px 40px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .section-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 20px; }
+  h2 { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; line-height: 1.15; color: var(--offwhite); margin-bottom: 20px; }
+  h2 em { font-style: italic; color: var(--amber-lt); }
+  .body-text { font-size: 14px; color: var(--muted); line-height: 1.75; font-weight: 300; }
+  .pain-list { display: flex; flex-direction: column; gap: 2px; }
+  .pain-item { display: flex; align-items: flex-start; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+  .pain-item:first-child { border-top: 1px solid var(--border); }
+  .pain-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 2px; min-width: 24px; }
+  .pain-title { font-size: 14px; font-weight: 500; color: var(--offwhite); margin-bottom: 4px; }
+  .pain-text { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  .how-section { padding: 64px 40px; border-bottom: 1px solid var(--border); }
+  .step-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; margin-top: 40px; }
+  .step-card { background: var(--ink2); padding: 32px; transition: background .2s; cursor: default; }
+  .step-card:hover { background: var(--ink3); }
+  .step-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--amber); letter-spacing: .1em; margin-bottom: 20px; }
+  .step-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--offwhite); line-height: 1.2; margin-bottom: 12px; }
+  .step-body { font-size: 13px; color: var(--muted); line-height: 1.65; }
+  .step-tag { display: inline-block; margin-top: 20px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(212,147,10,0.25); padding: 4px 8px; border-radius: 2px; letter-spacing: .06em; }
+
+  /* WHY TRUST — honest rebuild */
+  .trust-section { padding: 64px 40px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+
+  .insight-card { background: var(--ink2); border: 1px solid var(--border); padding: 32px; }
+  .insight-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--amber); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 20px; }
+  .insight-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .insight-item:last-child { border-bottom: none; }
+  .insight-icon { width: 6px; height: 6px; background: var(--amber); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .insight-text { font-size: 13px; color: var(--offwhite); line-height: 1.6; }
+  .insight-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  .trust-right { }
+  .trust-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; margin-bottom: 32px; }
+  .trust-pill { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(212,147,10,0.22); padding: 5px 10px; border-radius: 2px; letter-spacing: .05em; }
+  .trust-body { font-size: 14px; color: var(--muted); line-height: 1.75; }
+
+  /* Honest disclaimer strip */
+  .disclaimer-strip { padding: 20px 40px; background: var(--ink2); border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 14px; }
+  .disclaimer-icon { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--amber); flex-shrink: 0; padding-top: 1px; }
+  .disclaimer-text { font-size: 12px; color: var(--muted); line-height: 1.65; }
+  .disclaimer-text strong { color: var(--offwhite); font-weight: 500; }
+
+  .cta-section { padding: 80px 40px; text-align: center; }
+  .cta-box { max-width: 540px; margin: 0 auto; }
+  .cta-price { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--amber); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 20px; }
+  .cta-h { font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 600; color: var(--offwhite); line-height: 1.1; margin-bottom: 20px; }
+  .cta-sub { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 36px; }
+
+  footer { padding: 24px 40px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  @media (max-width: 600px) {
+    .problem-section, .trust-section { grid-template-columns: 1fr; gap: 40px; }
+    .stat-strip { grid-template-columns: 1fr; }
+    .step-grid { grid-template-columns: 1fr; }
+    nav, hero, .problem-section, .how-section, .trust-section, .cta-section, footer, .disclaimer-strip { padding-left: 20px; padding-right: 20px; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+
+<div class="page">
+  <nav>
+    <div class="logo"><div class="logo-dot"></div>NirnayAI</div>
+    <div class="nav-tag">Beta — Limited Access</div>
+  </nav>
+
+  <hero>
+    <div class="hero-eyebrow">AI-powered CA Final diagnostics</div>
+    <h1>Know <em>exactly</em> why you're failing.<br>Fix it.</h1>
+    <p class="hero-sub">Most CA repeaters study more of the same thing that failed them the last time. NirnayAI analyses your weaknesses at the question-type level — mapped to ICAI's own papers — and builds a precision plan around them.</p>
+    <div class="cta-row">
+      <button class="btn-primary" onclick="document.querySelector('.cta-section').scrollIntoView({behavior:'smooth'})">Get Your Diagnostic — ₹499</button>
+      <button class="btn-ghost" onclick="document.querySelector('.how-section').scrollIntoView({behavior:'smooth'})">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        See how it works
+      </button>
+    </div>
+    <p class="price-note">One-time report · Delivered within <span>48 hours</span> · ICAI-specific, not generic AI</p>
+  </hero>
+
+  <div class="stat-strip">
+    <div class="stat-item">
+      <div class="stat-num">10<span>–15%</span></div>
+      <div class="stat-label">CA Final pass rate per attempt. The exam is designed to fail most.</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3<span>×</span></div>
+      <div class="stat-label">Average attempts before passing. That's 18+ months of lost time.</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">₹0</div>
+      <div class="stat-label">Tools that tell you <em>exactly</em> why you failed your last paper.</div>
+    </div>
+  </div>
+
+  <div class="problem-section">
+    <div>
+      <div class="section-label">The problem</div>
+      <h2>You're not failing because you're not studying <em>enough.</em></h2>
+      <p class="body-text">You're failing because you don't know what to study differently. Every coaching platform sells you more content — more videos, more notes, more mock tests. None of them diagnose you. NirnayAI does.</p>
+    </div>
+    <div class="pain-list">
+      <div class="pain-item">
+        <div class="pain-num">01</div>
+        <div>
+          <div class="pain-title">Concept gaps aren't visible</div>
+          <div class="pain-text">You score 35 in Audit and don't know if it's Ind AS confusion, SA misapplication, or time pressure. Generic mock reports don't tell you.</div>
+        </div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-num">02</div>
+        <div>
+          <div class="pain-title">Question-type failures are ignored</div>
+          <div class="pain-text">CA papers test judgment, not recall. If you're strong on theory but weak on application questions, no test series will catch that pattern.</div>
+        </div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-num">03</div>
+        <div>
+          <div class="pain-title">Revision is inefficient by default</div>
+          <div class="pain-text">With 8 subjects, every student revises everything equally. That's precisely wrong — and it costs you attempts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="how-section">
+    <div class="section-label">How it works</div>
+    <h2>Three steps. One <em>clear</em> plan.</h2>
+    <div class="step-grid">
+      <div class="step-card">
+        <div class="step-num">STEP 01</div>
+        <div class="step-title">You share your attempt data</div>
+        <div class="step-body">Fill a 10-minute intake form — past attempt scores, subjects appearing for, specific topics you find hard. No uploads needed.</div>
+        <div class="step-tag">10 min intake</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">STEP 02</div>
+        <div class="step-title">AI analyses your failure pattern</div>
+        <div class="step-body">NirnayAI cross-references your data against ICAI past papers, RTPs, and MTP patterns to identify your exact weakness profile.</div>
+        <div class="step-tag">ICAI-mapped AI</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">STEP 03</div>
+        <div class="step-title">You get a precision study plan</div>
+        <div class="step-body">A personalised 30/60/90-day plan with topic prioritisation and question-type drills — calibrated to your actual exam date.</div>
+        <div class="step-tag">Delivered in 48hrs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HONEST TRUST SECTION — no CA claim -->
+  <div class="trust-section">
+    <div>
+      <div class="section-label">Why trust this</div>
+      <h2>Built on <em>ICAI's</em> own material. Nothing else.</h2>
+      <div class="trust-pills">
+        <div class="trust-pill">BCom graduate</div>
+        <div class="trust-pill">CA aspirant</div>
+        <div class="trust-pill">AI researcher</div>
+        <div class="trust-pill">ICAI curriculum specialist</div>
+      </div>
+      <p class="trust-body">NirnayAI was built by a BCom graduate and CA aspirant who experienced the preparation gap firsthand — and spent months mapping ICAI's exam patterns, past papers, and marking schemes using AI. The diagnostic is grounded entirely in ICAI's published material: study material, RTPs, MTPs, and suggested answers. Not generic AI. Not assumptions. The same sources ICAI uses to set the papers.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-label">What the diagnostic is built on</div>
+      <div class="insight-item">
+        <div class="insight-icon"></div>
+        <div>
+          <div class="insight-text">ICAI CA Final past papers — last 10 attempts</div>
+          <div class="insight-sub">Both Group 1 and Group 2, all papers mapped by question type.</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon"></div>
+        <div>
+          <div class="insight-text">ICAI Revision Test Papers (RTPs) and Mock Test Papers (MTPs)</div>
+          <div class="insight-sub">Pattern-analysed across attempts to identify high-weight topics.</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon"></div>
+        <div>
+          <div class="insight-text">ICAI suggested answers and marking schemes</div>
+          <div class="insight-sub">Understand exactly what the examiner awards marks for.</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon"></div>
+        <div>
+          <div class="insight-text">AI trained to distinguish recall vs application gaps</div>
+          <div class="insight-sub">The question-type split that no coaching platform diagnoses.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSPARENCY STRIP -->
+  <div class="disclaimer-strip">
+    <div class="disclaimer-icon">!</div>
+    <div class="disclaimer-text">
+      <strong>Full transparency:</strong> NirnayAI is an AI-powered diagnostic tool built by a BCom graduate and CA aspirant — not a registered Chartered Accountant or a CA coaching institute. The diagnostic analyses ICAI exam patterns using AI and is reviewed for quality before delivery. It is not a substitute for professional CA guidance or ICAI-approved coaching. Results are study planning recommendations, not guaranteed outcomes.
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <div class="cta-box">
+      <div class="cta-price">One-time · ₹499 · No subscription</div>
+      <div class="cta-h">Get your diagnostic report.</div>
+      <p class="cta-sub">Stop revising blindly. Find out exactly which gaps are costing you marks — and get a plan that fixes them before your next attempt.</p>
+      <button class="btn-primary" style="font-size:13px;padding:16px 36px;">Start Your Diagnostic — ₹499</button>
+      <p class="price-note" style="margin-top:16px;">Delivered within 48 hours · <span>ICAI-mapped AI analysis</span> · CA Final only</p>
+    </div>
+  </div>
+
+  <footer>
+    <span>© 2025 NirnayAI</span>
+    <span>AI-powered · ICAI-grounded · Built by a CA aspirant</span>
+  </footer>
+</div>
