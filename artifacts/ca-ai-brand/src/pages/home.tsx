@@ -1,83 +1,283 @@
+import { useRef } from "react";
+import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import Problems from "@/components/Problems";
-import Services from "@/components/Services";
-import Market from "@/components/Market";
-import About from "@/components/About";
-import Testimonials from "@/components/Testimonials";
-import Survey from "@/components/Survey";
-import Footer from "@/components/Footer";
-import { motion } from "framer-motion";
-import { CalculatorDoodle, GearDoodle, DocumentDoodle } from "@/components/CaDoodles";
 
 export default function Home() {
+  const howRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const borderC = "rgba(240,237,230,0.1)";
+  const mutedC  = "#8A877E";
+  const ink2    = "#1A1915";
+  const ink3    = "#252420";
+  const amber   = "#D4930A";
+  const amberLt = "#F2B93B";
+  const offwhite = "#F0EDE6";
+
   return (
-    <main className="min-h-screen w-full bg-background flex flex-col font-sans">
+    <div className="nirnay-page" style={{ minHeight: "100vh" }}>
       <Navbar />
-      <Hero />
-      <Problems />
-      <Services />
-      <Market />
 
-      {/* How It Works */}
-      <section className="py-24 bg-card border-y border-border relative overflow-hidden">
-        {/* Doodle decorations */}
-        <div className="absolute top-6 right-6 opacity-10 hidden lg:block">
-          <GearDoodle className="w-16 h-16 text-primary" />
-        </div>
-        <div className="absolute bottom-6 left-8 opacity-10 hidden lg:block">
-          <DocumentDoodle className="w-14 h-14 text-primary" />
-        </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5">
-          <CalculatorDoodle className="w-40 h-40 text-primary" />
+      {/* ── HERO ───────────────────────────────────────────── */}
+      <section style={{ padding: "72px 40px 64px", borderBottom: `1px solid ${borderC}` }}>
+        <div className="hero-eyebrow" style={{
+          fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: amber,
+          letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 28,
+          display: "flex", alignItems: "center", gap: 10,
+        }}>
+          <span style={{ display: "inline-block", width: 24, height: 1, background: amber }} />
+          AI-powered CA Final diagnostics
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+        <h1 className="nirnay-h1">
+          Know <em className="nirnay-em">exactly</em> why you're failing.<br />Fix it.
+        </h1>
+
+        <p style={{ fontSize: 15, color: mutedC, lineHeight: 1.65, maxWidth: 440, margin: "24px 0 40px", fontWeight: 300 }}>
+          Most CA repeaters study more of the same thing that failed them the last time.
+          NirnayAI analyses your weaknesses at the question-type level — mapped to ICAI's
+          own papers — and builds a precision plan around them.
+        </p>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+          <button
+            className="btn-primary"
+            onClick={() => scrollTo(ctaRef)}
           >
-            <h2 className="text-sm font-bold tracking-widest text-primary uppercase mb-3">How It Works</h2>
-            <h3 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-16">
-              Get Started in 3 Simple Steps
-            </h3>
-          </motion.div>
-
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 relative">
-            <div className="hidden md:block absolute top-1/2 left-[20%] right-[20%] h-0.5 bg-border -z-10" />
-
-            {[
-              { step: "01", title: "Sign Up", desc: "Join our platform and complete your profile in under 2 minutes." },
-              { step: "02", title: "Choose Service", desc: "Select the AI tools that match your CA journey or business needs." },
-              { step: "03", title: "Get Results", desc: "Let AI automate your workflow, prep, and compliance — effortlessly." },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="flex flex-col items-center bg-card p-6 w-full md:w-1/3"
-              >
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="w-16 h-16 rounded-full bg-primary text-primary-foreground font-display font-bold text-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary/20"
-                >
-                  {item.step}
-                </motion.div>
-                <h4 className="text-xl font-bold text-foreground mb-2">{item.title}</h4>
-                <p className="text-muted-foreground">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
+            Get Your Diagnostic — ₹499
+          </button>
+          <button className="btn-ghost" onClick={() => scrollTo(howRef)}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" />
+            </svg>
+            See how it works
+          </button>
         </div>
+
+        <p className="price-note">
+          One-time report · Delivered within{" "}
+          <span className="price-note-amber">48 hours</span>{" "}
+          · ICAI-specific, not generic AI
+        </p>
       </section>
 
-      <About />
-      <Testimonials />
-      <Survey />
-      <Footer />
-    </main>
+      {/* ── STATS ──────────────────────────────────────────── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderBottom: `1px solid ${borderC}` }}>
+        {[
+          { num: "10", sup: "–15%", label: "CA Final pass rate per attempt. The exam is designed to fail most." },
+          { num: "3",  sup: "×",    label: "Average attempts before passing. That's 18+ months of lost time." },
+          { num: "₹0", sup: "",     label: "Tools that tell you exactly why you failed your last paper." },
+        ].map((s, i) => (
+          <div key={i} style={{ padding: "32px 40px", borderRight: i < 2 ? `1px solid ${borderC}` : undefined }}>
+            <div className="stat-num-serif">
+              {s.num}
+              {s.sup && <span style={{ color: amber, fontSize: 26 }}>{s.sup}</span>}
+            </div>
+            <div style={{ fontSize: 12, color: mutedC, lineHeight: 1.5 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── PROBLEM ────────────────────────────────────────── */}
+      <div style={{
+        padding: "64px 40px", borderBottom: `1px solid ${borderC}`,
+        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start",
+      }}
+        className="responsive-two-col"
+      >
+        <div>
+          <span className="section-label">The problem</span>
+          <h2 className="nirnay-h2">
+            You're not failing because you're not studying{" "}
+            <em className="nirnay-em">enough.</em>
+          </h2>
+          <p style={{ fontSize: 14, color: mutedC, lineHeight: 1.75, fontWeight: 300 }}>
+            You're failing because you don't know what to study differently. Every
+            coaching platform sells you more content — more videos, more notes, more mock
+            tests. None of them diagnose you. NirnayAI does.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {[
+            {
+              n: "01", title: "Concept gaps aren't visible",
+              body: "You score 35 in Audit and don't know if it's Ind AS confusion, SA misapplication, or time pressure. Generic mock reports don't tell you.",
+            },
+            {
+              n: "02", title: "Question-type failures are ignored",
+              body: "CA papers test judgment, not recall. If you're strong on theory but weak on application questions, no test series will catch that pattern.",
+            },
+            {
+              n: "03", title: "Revision is inefficient by default",
+              body: "With 8 subjects, every student revises everything equally. That's precisely wrong — and it costs you attempts.",
+            },
+          ].map((item, i) => (
+            <div key={i} style={{
+              display: "flex", alignItems: "flex-start", gap: 14,
+              padding: "18px 0", borderBottom: `1px solid ${borderC}`,
+              borderTop: i === 0 ? `1px solid ${borderC}` : undefined,
+            }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: mutedC, marginTop: 2, minWidth: 24 }}>
+                {item.n}
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: offwhite, marginBottom: 4 }}>{item.title}</div>
+                <div style={{ fontSize: 13, color: mutedC, lineHeight: 1.55 }}>{item.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── HOW IT WORKS ───────────────────────────────────── */}
+      <div ref={howRef} style={{ padding: "64px 40px", borderBottom: `1px solid ${borderC}` }}>
+        <span className="section-label">How it works</span>
+        <h2 className="nirnay-h2">Three steps. One <em className="nirnay-em">clear</em> plan.</h2>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 2, marginTop: 40 }}
+          className="responsive-three-col"
+        >
+          {[
+            {
+              step: "STEP 01", title: "You share your attempt data",
+              body: "Fill a 10-minute intake form — past attempt scores, subjects appearing for, specific topics you find hard. No uploads needed.",
+              tag: "10 min intake",
+            },
+            {
+              step: "STEP 02", title: "AI analyses your failure pattern",
+              body: "NirnayAI cross-references your data against ICAI past papers, RTPs, and MTP patterns to identify your exact weakness profile.",
+              tag: "ICAI-mapped AI",
+            },
+            {
+              step: "STEP 03", title: "You get a precision study plan",
+              body: "A personalised 30/60/90-day plan with topic prioritisation and question-type drills — calibrated to your actual exam date.",
+              tag: "Delivered in 48hrs",
+            },
+          ].map((s, i) => (
+            <div key={i} className="step-card">
+              <div className="step-num-tag">{s.step}</div>
+              <div className="step-title">{s.title}</div>
+              <div style={{ fontSize: 13, color: mutedC, lineHeight: 1.65 }}>{s.body}</div>
+              <div className="step-tag">{s.tag}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── WHY TRUST ──────────────────────────────────────── */}
+      <div style={{
+        padding: "64px 40px", borderBottom: `1px solid ${borderC}`,
+        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start",
+      }}
+        className="responsive-two-col"
+      >
+        {/* Left */}
+        <div>
+          <span className="section-label">Why trust this</span>
+          <h2 className="nirnay-h2">
+            Built on <em className="nirnay-em">ICAI's</em> own material. Nothing else.
+          </h2>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 24, marginBottom: 32 }}>
+            {["BCom graduate", "CA aspirant", "AI researcher", "ICAI curriculum specialist"].map((tag) => (
+              <span key={tag} className="trust-pill">{tag}</span>
+            ))}
+          </div>
+
+          <p style={{ fontSize: 14, color: mutedC, lineHeight: 1.75 }}>
+            NirnayAI was built by a BCom graduate and CA aspirant who experienced the
+            preparation gap firsthand — and spent months mapping ICAI's exam patterns,
+            past papers, and marking schemes using AI. The diagnostic is grounded entirely
+            in ICAI's published material: study material, RTPs, MTPs, and suggested
+            answers. Not generic AI. Not assumptions. The same sources ICAI uses to set
+            the papers.
+          </p>
+        </div>
+
+        {/* Right — Insight card */}
+        <div className="insight-card">
+          <span className="insight-label">What the diagnostic is built on</span>
+          {[
+            { text: "ICAI CA Final past papers — last 10 attempts", sub: "Both Group 1 and Group 2, all papers mapped by question type." },
+            { text: "ICAI Revision Test Papers (RTPs) and Mock Test Papers (MTPs)", sub: "Pattern-analysed across attempts to identify high-weight topics." },
+            { text: "ICAI suggested answers and marking schemes", sub: "Understand exactly what the examiner awards marks for." },
+            { text: "AI trained to distinguish recall vs application gaps", sub: "The question-type split that no coaching platform diagnoses." },
+          ].map((item, i) => (
+            <div key={i} style={{
+              display: "flex", gap: 14, padding: "14px 0",
+              borderBottom: i < 3 ? `1px solid ${borderC}` : undefined,
+            }}>
+              <div className="insight-dot" />
+              <div>
+                <div style={{ fontSize: 13, color: offwhite, lineHeight: 1.6 }}>{item.text}</div>
+                <div style={{ fontSize: 12, color: mutedC, marginTop: 3 }}>{item.sub}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── DISCLAIMER ─────────────────────────────────────── */}
+      <div style={{
+        padding: "20px 40px", background: ink2, borderBottom: `1px solid ${borderC}`,
+        display: "flex", alignItems: "flex-start", gap: 14,
+      }}>
+        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: amber, flexShrink: 0, paddingTop: 1 }}>!</div>
+        <p style={{ fontSize: 12, color: mutedC, lineHeight: 1.65 }}>
+          <strong style={{ color: offwhite, fontWeight: 500 }}>Full transparency:</strong>{" "}
+          NirnayAI is an AI-powered diagnostic tool built by a BCom graduate and CA aspirant —
+          not a registered Chartered Accountant or a CA coaching institute. The diagnostic
+          analyses ICAI exam patterns using AI and is reviewed for quality before delivery.
+          It is not a substitute for professional CA guidance or ICAI-approved coaching.
+          Results are study planning recommendations, not guaranteed outcomes.
+        </p>
+      </div>
+
+      {/* ── CTA ────────────────────────────────────────────── */}
+      <div ref={ctaRef} style={{ padding: "80px 40px", textAlign: "center" }}>
+        <div style={{ maxWidth: 540, margin: "0 auto" }}>
+          <div className="cta-price">One-time · ₹499 · No subscription</div>
+          <div className="cta-h">Get your diagnostic report.</div>
+          <p style={{ fontSize: 14, color: mutedC, lineHeight: 1.65, marginBottom: 36 }}>
+            Stop revising blindly. Find out exactly which gaps are costing you marks —
+            and get a plan that fixes them before your next attempt.
+          </p>
+          <Link href="/diagnostic">
+            <button className="btn-primary" style={{ fontSize: 13, padding: "16px 36px" }}>
+              Start Your Diagnostic — ₹499
+            </button>
+          </Link>
+          <p className="price-note" style={{ marginTop: 16 }}>
+            Delivered within 48 hours ·{" "}
+            <span className="price-note-amber">ICAI-mapped AI analysis</span>{" "}
+            · CA Final only
+          </p>
+        </div>
+      </div>
+
+      {/* ── FOOTER ─────────────────────────────────────────── */}
+      <footer style={{
+        padding: "24px 40px", borderTop: `1px solid ${borderC}`,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: mutedC,
+        flexWrap: "wrap", gap: 8,
+      }}>
+        <span>© 2025 NirnayAI</span>
+        <span>AI-powered · ICAI-grounded · Built by a CA aspirant</span>
+      </footer>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .responsive-two-col { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .responsive-three-col { grid-template-columns: 1fr !important; }
+          section, .responsive-two-col, .how-section-inner { padding-left: 20px !important; padding-right: 20px !important; }
+        }
+      `}</style>
+    </div>
   );
 }

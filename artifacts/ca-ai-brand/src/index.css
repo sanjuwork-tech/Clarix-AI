@@ -1,12 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,wght@1,300;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Fraunces', serif;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -35,70 +36,182 @@
   --radius-sm: calc(var(--radius) - 2px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);
-  --radius-xl: calc(var(--radius) + 4px);
 }
 
 :root {
-  --background: 0 0% 5%;
-  --foreground: 45 8% 95%;
+  /* NirnayAI exact palette */
+  --ink:      #0D0C0A;
+  --ink2:     #1A1915;
+  --ink3:     #252420;
+  --amber:    #D4930A;
+  --amber-lt: #F2B93B;
+  --offwhite: #F0EDE6;
+  --muted-c:  #8A877E;
+  --border-c: rgba(240,237,230,0.1);
 
-  --primary: 45 8% 95%;
-  --primary-foreground: 0 0% 5%;
-
-  --secondary: 0 0% 9%;
-  --secondary-foreground: 45 8% 95%;
-
-  --card: 0 0% 8%;
-  --card-foreground: 45 8% 95%;
-
-  --muted: 0 0% 12%;
-  --muted-foreground: 0 0% 50%;
-
-  --accent: 45 8% 95%;
-  --accent-foreground: 0 0% 5%;
-
-  --destructive: 0 80% 60%;
-  --destructive-foreground: 45 8% 95%;
-
-  --border: 0 0% 12%;
-  --input: 0 0% 12%;
-  --ring: 45 8% 95%;
-
-  --radius: 0.25rem;
+  /* Tailwind CSS vars */
+  --background: 30 8% 5%;
+  --foreground: 40 15% 90%;
+  --primary: 38 90% 44%;
+  --primary-foreground: 30 8% 5%;
+  --secondary: 35 8% 10%;
+  --secondary-foreground: 40 15% 90%;
+  --card: 35 8% 10%;
+  --card-foreground: 40 15% 90%;
+  --muted: 35 5% 14%;
+  --muted-foreground: 35 5% 55%;
+  --accent: 38 90% 44%;
+  --accent-foreground: 30 8% 5%;
+  --destructive: 0 80% 55%;
+  --destructive-foreground: 40 15% 90%;
+  --border: 35 10% 15%;
+  --input: 35 10% 15%;
+  --ring: 38 90% 44%;
+  --radius: 0.125rem;
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
-    font-feature-settings: "ss01", "ss02";
-  }
-
-  h1, h2, h3, h4 {
-    font-family: var(--font-sans);
-    @apply font-bold tracking-tight;
+    background: var(--ink);
+    color: var(--offwhite);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-@layer utilities {
-  .font-serif-italic {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-  }
+/* ── Shared utility classes matching the HTML exactly ── */
+.nirnay-page { background: var(--ink); color: var(--offwhite); }
 
-  .section-label {
-    @apply text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground;
-  }
+.nirnay-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--border-c);
+}
+.nirnay-logo {
+  font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500;
+  letter-spacing: -0.02em; color: var(--offwhite);
+  display: flex; align-items: center; gap: 8px;
+}
+.logo-dot {
+  width: 8px; height: 8px; background: var(--amber); border-radius: 50%;
+  animation: logopulse 2.4s ease-in-out infinite;
+}
+@keyframes logopulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.5; transform:scale(.8); }
+}
+.nav-tag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--amber); background: rgba(212,147,10,0.12);
+  border: 1px solid rgba(212,147,10,0.3);
+  padding: 4px 10px; border-radius: 2px;
+  letter-spacing: .08em; text-transform: uppercase;
+}
 
-  .divider {
-    @apply border-t border-border;
-  }
+.section-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--muted-c); text-transform: uppercase; letter-spacing: .12em;
+  margin-bottom: 20px; display: block;
+}
 
-  .tag-pill {
-    @apply inline-flex items-center px-2.5 py-1 text-[11px] font-medium border border-border rounded-full text-muted-foreground;
-  }
+.nirnay-h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px,7vw,72px); font-weight: 600;
+  line-height: 1.05; letter-spacing: -.02em; color: var(--offwhite);
+  max-width: 680px; margin-bottom: 8px;
+}
+.nirnay-h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 600;
+  line-height: 1.15; color: var(--offwhite); margin-bottom: 20px;
+}
+.nirnay-em { font-style: italic; color: var(--amber-lt); }
+
+.btn-primary {
+  background: var(--amber); color: var(--ink);
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 14px 28px; border-radius: 2px; border: none; cursor: pointer;
+  transition: background .2s, transform .15s; display: inline-block;
+}
+.btn-primary:hover { background: var(--amber-lt); transform: translateY(-1px); }
+
+.btn-ghost {
+  background: transparent; color: var(--muted-c);
+  font-size: 13px; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; transition: color .2s;
+}
+.btn-ghost:hover { color: var(--offwhite); }
+
+.price-note {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--muted-c); margin-top: 16px; letter-spacing: .04em;
+}
+.price-note-amber { color: var(--amber); }
+
+/* Stats */
+.stat-num-serif {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px; font-weight: 600; color: var(--offwhite);
+  line-height: 1; margin-bottom: 6px;
+}
+
+/* Step card */
+.step-card {
+  background: var(--ink2); padding: 32px;
+  transition: background .2s; cursor: default;
+}
+.step-card:hover { background: var(--ink3); }
+.step-num-tag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--amber); letter-spacing: .1em; margin-bottom: 20px;
+}
+.step-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--offwhite);
+  line-height: 1.2; margin-bottom: 12px;
+}
+.step-tag {
+  display: inline-block; margin-top: 20px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--amber); background: rgba(212,147,10,0.12);
+  border: 1px solid rgba(212,147,10,0.25);
+  padding: 4px 8px; border-radius: 2px; letter-spacing: .06em;
+}
+
+/* Trust pills */
+.trust-pill {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--amber); background: rgba(212,147,10,0.12);
+  border: 1px solid rgba(212,147,10,0.22);
+  padding: 5px 10px; border-radius: 2px; letter-spacing: .05em;
+}
+
+/* Insight card */
+.insight-card {
+  background: var(--ink2); border: 1px solid var(--border-c); padding: 32px;
+}
+.insight-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--amber); letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 20px; display: block;
+}
+.insight-dot {
+  width: 6px; height: 6px; background: var(--amber);
+  border-radius: 50%; margin-top: 6px; flex-shrink: 0;
+}
+
+/* CTA */
+.cta-price {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--amber); letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.cta-h {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 44px; font-weight: 600;
+  color: var(--offwhite); line-height: 1.1; margin-bottom: 20px;
 }
