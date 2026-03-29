@@ -2,14 +2,15 @@ import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Link } from "wouter";
 
-const INK   = "#0D0C0A";
-const INK2  = "#1A1915";
-const INK3  = "#252420";
-const AMBER = "#D4930A";
-const AMBER_LT = "#F2B93B";
-const OFFWHITE = "#F0EDE6";
-const MUTED = "#8A877E";
-const BORDER = "rgba(240,237,230,0.1)";
+const CHARCOAL  = "#1C1917";
+const PARCHMENT = "#FAF8F4";
+const SURFACE   = "#F5F2EC";
+const WHITE     = "#FFFFFF";
+const AMBER     = "#D4930A";
+const AMBER_LT  = "#F2B93B";
+const AMBER_DEEP = "#7C3F00";
+const MUTED     = "#78716C";
+const BORDER    = "#E7E5E0";
 
 const CA_LEVELS: Record<string, string[]> = {
   "CA Foundation": [
@@ -62,18 +63,33 @@ function MarkdownReport({ text }: { text: string }) {
     <div>
       {text.split("\n").map((line, i) => {
         if (line.startsWith("## "))
-          return <h3 key={i} style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 24, fontWeight: 600, color: OFFWHITE, margin: "28px 0 10px", paddingBottom: 8, borderBottom: `1px solid ${BORDER}` }}>{line.replace("## ", "")}</h3>;
+          return (
+            <h3 key={i} style={{
+              fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 600,
+              color: CHARCOAL, margin: "32px 0 12px", paddingBottom: 10,
+              borderBottom: `2px solid ${BORDER}`, letterSpacing: "-0.01em",
+            }}>{line.replace("## ", "")}</h3>
+          );
         if (line.startsWith("### "))
-          return <h4 key={i} style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 18, fontWeight: 600, color: OFFWHITE, margin: "20px 0 6px" }}>{line.replace("### ", "")}</h4>;
+          return (
+            <h4 key={i} style={{
+              fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 600,
+              color: CHARCOAL, margin: "20px 0 6px",
+            }}>{line.replace("### ", "")}</h4>
+          );
         if (line.startsWith("- ") || line.startsWith("* "))
           return (
-            <div key={i} style={{ display: "flex", gap: 10, margin: "4px 0" }}>
+            <div key={i} style={{ display: "flex", gap: 10, margin: "6px 0" }}>
               <span style={{ color: AMBER, marginTop: 2, flexShrink: 0 }}>—</span>
-              <span style={{ fontSize: 13, color: MUTED, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: line.replace(/^[-*] /, "").replace(/\*\*(.*?)\*\*/g, `<strong style="color:${OFFWHITE}">$1</strong>`) }} />
+              <span style={{ fontSize: 14, color: MUTED, lineHeight: 1.7 }}
+                dangerouslySetInnerHTML={{ __html: line.replace(/^[-*] /, "").replace(/\*\*(.*?)\*\*/g, `<strong style="color:${CHARCOAL}">$1</strong>`) }} />
             </div>
           );
-        if (line.trim() === "") return <div key={i} style={{ height: 8 }} />;
-        return <p key={i} style={{ fontSize: 13, color: MUTED, lineHeight: 1.75 }} dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, `<strong style="color:${OFFWHITE}">$1</strong>`) }} />;
+        if (line.trim() === "") return <div key={i} style={{ height: 10 }} />;
+        return (
+          <p key={i} style={{ fontSize: 14, color: MUTED, lineHeight: 1.75 }}
+            dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, `<strong style="color:${CHARCOAL}">$1</strong>`) }} />
+        );
       })}
     </div>
   );
@@ -143,15 +159,40 @@ export default function DiagnosticPage() {
     }
   };
 
+  const inputStyle = {
+    width: "100%", background: WHITE, border: `1px solid ${BORDER}`, color: CHARCOAL,
+    padding: "12px 16px", fontSize: 14, fontFamily: "'Space Grotesk', sans-serif",
+    outline: "none", borderRadius: 8, transition: "border-color .2s",
+  };
+
+  const labelStyle = {
+    display: "block" as const, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11,
+    color: MUTED, letterSpacing: ".08em", textTransform: "uppercase" as const, marginBottom: 6,
+  };
+
   return (
-    <div style={{ background: INK, minHeight: "100vh", color: OFFWHITE, fontFamily: "'DM Sans', sans-serif", fontWeight: 300 }}>
+    <div style={{ background: PARCHMENT, minHeight: "100vh", color: CHARCOAL, fontFamily: "'Space Grotesk', sans-serif" }}>
+
       {/* Nav */}
-      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 40px", borderBottom: `1px solid ${BORDER}` }}>
-        <Link href="/" style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 15, fontWeight: 500, color: OFFWHITE, display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-          <div style={{ width: 8, height: 8, background: AMBER, borderRadius: "50%", animation: "logopulse 2.4s ease-in-out infinite" }} />
-          NirnayAI
+      <nav style={{
+        height: 64, display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 40px", background: "rgba(250,248,244,0.92)", backdropFilter: "blur(8px)",
+        borderBottom: `1px solid ${BORDER}`, position: "sticky", top: 0, zIndex: 100,
+      }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M 26 16 A 10 10 0 1 1 21 7.34" stroke={AMBER} strokeWidth="3" strokeLinecap="round" />
+            <circle className="logo-dot" cx="24.66" cy="11" r="3" fill={AMBER} />
+          </svg>
+          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 600, letterSpacing: "-0.3px", color: CHARCOAL }}>
+            Clarix<span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 400, color: AMBER, letterSpacing: "2.5px", fontSize: 13 }}>.AI</span>
+          </span>
         </Link>
-        <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: AMBER, background: "rgba(212,147,10,0.12)", border: "1px solid rgba(212,147,10,0.3)", padding: "4px 10px", borderRadius: 2, letterSpacing: ".08em", textTransform: "uppercase" }}>
+        <div style={{
+          fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: AMBER_DEEP,
+          background: "rgba(212,147,10,0.08)", border: "1px solid rgba(212,147,10,0.25)",
+          padding: "4px 10px", borderRadius: 4, letterSpacing: ".08em", textTransform: "uppercase",
+        }}>
           CA Diagnostic Tool
         </div>
       </nav>
@@ -161,41 +202,35 @@ export default function DiagnosticPage() {
         {/* STEP 1 */}
         {step === 1 && (
           <div>
-            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ display: "inline-block", width: 24, height: 1, background: AMBER }} />
               Step 01 of 02
             </div>
-            <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(32px,5vw,52px)", fontWeight: 600, lineHeight: 1.1, color: OFFWHITE, marginBottom: 12 }}>
+            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(28px,5vw,44px)", fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em", color: CHARCOAL, marginBottom: 12 }}>
               Tell us about your attempt.
             </h1>
-            <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.65, marginBottom: 40, maxWidth: 480 }}>
-              NirnayAI needs your exam data to diagnose your failure pattern. This takes about 10 minutes.
+            <p style={{ fontSize: 15, color: MUTED, lineHeight: 1.7, marginBottom: 40, maxWidth: 480 }}>
+              Clarix.ai needs your exam data to diagnose your failure pattern. This takes about 10 minutes.
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px 32px" }}>
-              {/* Name */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px 28px" }}>
               <div>
-                <label style={{ display: "block", fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: MUTED, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 8 }}>Full Name</label>
-                <input {...register("name", { required: true })} placeholder="Bhargavi Sharma"
-                  style={{ width: "100%", background: INK2, border: `1px solid ${BORDER}`, color: OFFWHITE, padding: "12px 16px", fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: "none", borderRadius: 2 }} />
+                <label style={labelStyle}>Full Name</label>
+                <input {...register("name", { required: true })} placeholder="Bhargavi Sharma" style={inputStyle} />
               </div>
-              {/* Email */}
               <div>
-                <label style={{ display: "block", fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: MUTED, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 8 }}>Email</label>
-                <input {...register("email", { required: true })} type="email" placeholder="you@example.com"
-                  style={{ width: "100%", background: INK2, border: `1px solid ${BORDER}`, color: OFFWHITE, padding: "12px 16px", fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: "none", borderRadius: 2 }} />
+                <label style={labelStyle}>Email</label>
+                <input {...register("email", { required: true })} type="email" placeholder="you@example.com" style={inputStyle} />
               </div>
-              {/* Attempt */}
               <div>
-                <label style={{ display: "block", fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: MUTED, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 8 }}>Attempt Number</label>
-                <select {...register("attemptNumber")} style={{ width: "100%", background: INK2, border: `1px solid ${BORDER}`, color: OFFWHITE, padding: "12px 16px", fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: "none", borderRadius: 2 }}>
+                <label style={labelStyle}>Attempt Number</label>
+                <select {...register("attemptNumber")} style={{ ...inputStyle, appearance: "none" as const }}>
                   {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n === 1 ? "1st (First)" : n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`} attempt</option>)}
                 </select>
               </div>
-              {/* Study hours */}
               <div>
-                <label style={{ display: "block", fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: MUTED, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 8 }}>Daily Study Hours</label>
-                <select {...register("studyHours")} style={{ width: "100%", background: INK2, border: `1px solid ${BORDER}`, color: OFFWHITE, padding: "12px 16px", fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: "none", borderRadius: 2 }}>
+                <label style={labelStyle}>Daily Study Hours</label>
+                <select {...register("studyHours")} style={{ ...inputStyle, appearance: "none" as const }}>
                   <option value="">Select...</option>
                   <option value="less than 4 hours">Less than 4 hrs</option>
                   <option value="4-6 hours">4–6 hrs</option>
@@ -206,18 +241,18 @@ export default function DiagnosticPage() {
               </div>
             </div>
 
-            {/* CA Level */}
             <div style={{ marginTop: 32 }}>
-              <label style={{ display: "block", fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: MUTED, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 16 }}>Select Your CA Level</label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+              <label style={{ ...labelStyle, marginBottom: 12 }}>Select Your CA Level</label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 {Object.keys(CA_LEVELS).map(level => (
                   <button key={level} type="button" onClick={() => handleLevelChange(level)}
                     style={{
-                      padding: "14px 20px", textAlign: "left", fontSize: 13, fontWeight: 400,
-                      background: examLevel === level ? "rgba(212,147,10,0.12)" : INK2,
+                      padding: "14px 18px", textAlign: "left", fontSize: 14, fontWeight: 400,
+                      background: examLevel === level ? "rgba(212,147,10,0.08)" : WHITE,
                       border: `1px solid ${examLevel === level ? "rgba(212,147,10,0.4)" : BORDER}`,
-                      color: examLevel === level ? AMBER_LT : MUTED,
-                      borderRadius: 2, cursor: "pointer", transition: "all .15s", fontFamily: "'DM Sans',sans-serif",
+                      color: examLevel === level ? AMBER_DEEP : MUTED,
+                      borderRadius: 8, cursor: "pointer", transition: "all .15s",
+                      fontFamily: "'Space Grotesk', sans-serif",
                     }}>
                     {level}
                   </button>
@@ -240,52 +275,67 @@ export default function DiagnosticPage() {
         {/* STEP 2 */}
         {step === 2 && (
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ display: "inline-block", width: 24, height: 1, background: AMBER }} />
               Step 02 of 02
             </div>
-            <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(28px,4vw,44px)", fontWeight: 600, lineHeight: 1.1, color: OFFWHITE, marginBottom: 6 }}>
+            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(24px,4vw,38px)", fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em", color: CHARCOAL, marginBottom: 6 }}>
               Enter your subject marks.
             </h1>
-            <p style={{ fontSize: 13, color: MUTED, marginBottom: 32 }}>{examLevel} — leave score blank if not attempted</p>
+            <p style={{ fontSize: 14, color: MUTED, marginBottom: 32 }}>{examLevel} — leave score blank if not attempted</p>
 
-            {/* Subjects */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 0, background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 12, overflow: "hidden" }}>
               {fields.map((field, i) => {
                 const scoreVal = watch(`subjects.${i}.score`);
                 const scoreNum = scoreVal ? parseInt(scoreVal) : null;
                 const pass = scoreNum !== null && scoreNum >= 40;
                 return (
-                  <div key={field.id} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", alignItems: "center", gap: 12, padding: "14px 0", borderBottom: `1px solid ${BORDER}`, borderTop: i === 0 ? `1px solid ${BORDER}` : undefined }}>
+                  <div key={field.id} style={{
+                    display: "grid", gridTemplateColumns: "1fr auto auto", alignItems: "center",
+                    gap: 12, padding: "16px 20px",
+                    borderBottom: i < fields.length - 1 ? `1px solid ${BORDER}` : undefined,
+                  }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: OFFWHITE }}>{field.subject}</div>
-                      <div style={{ fontSize: 11, color: MUTED, fontFamily: "'IBM Plex Mono',monospace", marginTop: 2 }}>Max 100</div>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: CHARCOAL }}>{field.subject}</div>
+                      <div style={{ fontSize: 11, color: MUTED, fontFamily: "'IBM Plex Mono', monospace", marginTop: 2, letterSpacing: ".04em" }}>Max 100</div>
                     </div>
                     <input
                       {...register(`subjects.${i}.score`)}
                       type="number" placeholder="Score" min="0" max="100"
-                      style={{ width: 80, background: INK2, border: `1px solid ${BORDER}`, color: OFFWHITE, padding: "10px 12px", fontSize: 13, textAlign: "center", outline: "none", borderRadius: 2, fontFamily: "'IBM Plex Mono',monospace" }}
+                      style={{ width: 80, background: SURFACE, border: `1px solid ${BORDER}`, color: CHARCOAL, padding: "10px 12px", fontSize: 13, textAlign: "center", outline: "none", borderRadius: 6, fontFamily: "'IBM Plex Mono', monospace" }}
                     />
-                    {scoreNum !== null && (
-                      <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, letterSpacing: ".08em", textTransform: "uppercase", padding: "4px 8px", borderRadius: 2, color: pass ? "#4ade80" : "#f87171", background: pass ? "rgba(74,222,128,0.1)" : "rgba(248,113,113,0.1)", border: `1px solid ${pass ? "rgba(74,222,128,0.2)" : "rgba(248,113,113,0.2)"}` }}>
+                    {scoreNum !== null ? (
+                      <div style={{
+                        fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: ".08em",
+                        textTransform: "uppercase", padding: "4px 9px", borderRadius: 4,
+                        color: pass ? "#1A4731" : "#7C3F00",
+                        background: pass ? "rgba(45,106,79,0.1)" : "rgba(146,64,14,0.1)",
+                        border: `1px solid ${pass ? "rgba(45,106,79,0.25)" : "rgba(146,64,14,0.25)"}`,
+                      }}>
                         {pass ? "Pass" : "Fail"}
                       </div>
-                    )}
-                    {scoreNum === null && <div style={{ width: 52 }} />}
+                    ) : <div style={{ width: 52 }} />}
                   </div>
                 );
               })}
             </div>
 
-            {/* Weak areas */}
             <div style={{ marginTop: 32 }}>
-              <label style={{ display: "block", fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: MUTED, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 16 }}>Your Weak Areas (select all that apply)</label>
+              <label style={{ ...labelStyle, marginBottom: 12 }}>Your Weak Areas (select all that apply)</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {WEAK_AREAS.map(area => {
                   const sel = weakAreas.includes(area);
                   return (
                     <button key={area} type="button" onClick={() => toggleWeakArea(area)}
-                      style={{ padding: "6px 12px", fontSize: 12, fontFamily: "'IBM Plex Mono',monospace", letterSpacing: ".04em", borderRadius: 2, cursor: "pointer", border: `1px solid ${sel ? "rgba(212,147,10,0.4)" : BORDER}`, background: sel ? "rgba(212,147,10,0.12)" : "transparent", color: sel ? AMBER_LT : MUTED, transition: "all .15s" }}>
+                      style={{
+                        padding: "7px 13px", fontSize: 12,
+                        fontFamily: "'IBM Plex Mono', monospace", letterSpacing: ".04em",
+                        borderRadius: 6, cursor: "pointer",
+                        border: `1px solid ${sel ? "rgba(212,147,10,0.4)" : BORDER}`,
+                        background: sel ? "rgba(212,147,10,0.08)" : WHITE,
+                        color: sel ? AMBER_DEEP : MUTED,
+                        transition: "all .15s",
+                      }}>
                       {sel ? "✓ " : ""}{area}
                     </button>
                   );
@@ -293,8 +343,8 @@ export default function DiagnosticPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 16, marginTop: 40 }}>
-              <button type="button" onClick={() => setStep(1)} style={{ padding: "14px 24px", background: "transparent", border: `1px solid ${BORDER}`, color: MUTED, fontSize: 13, borderRadius: 2, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace", letterSpacing: ".04em" }}>
+            <div style={{ display: "flex", gap: 12, marginTop: 40 }}>
+              <button type="button" onClick={() => setStep(1)} className="btn-secondary">
                 ← Back
               </button>
               <button type="submit" className="btn-primary" style={{ padding: "14px 32px" }}>
@@ -309,47 +359,50 @@ export default function DiagnosticPage() {
           <div>
             {isAnalyzing && !report && (
               <div style={{ textAlign: "center", padding: "80px 0" }}>
-                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 24 }}>Analysing your failure pattern</div>
-                <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 36, fontWeight: 600, color: OFFWHITE, marginBottom: 16 }}>AI is building your report...</h2>
-                <p style={{ fontSize: 13, color: MUTED, lineHeight: 1.65, maxWidth: 380, margin: "0 auto" }}>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 24 }}>Analysing your failure pattern</div>
+                <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 32, fontWeight: 600, letterSpacing: "-0.02em", color: CHARCOAL, marginBottom: 16 }}>AI is building your report...</h2>
+                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.7, maxWidth: 380, margin: "0 auto" }}>
                   Cross-referencing your scores against ICAI's past papers, RTPs, and marking schemes.
                 </p>
-                <div style={{ marginTop: 32, display: "flex", justifyContent: "center", gap: 6 }}>
+                <div style={{ marginTop: 32, display: "flex", justifyContent: "center", gap: 7 }}>
                   {[0, 1, 2].map(i => (
-                    <div key={i} style={{ width: 6, height: 6, background: AMBER, borderRadius: "50%", animation: `dotbounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+                    <div key={i} style={{ width: 7, height: 7, background: AMBER, borderRadius: "50%", animation: `dotbounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
                   ))}
                 </div>
               </div>
             )}
 
             {error && (
-              <div style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", padding: 32, borderRadius: 2, textAlign: "center" }}>
-                <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 24, color: OFFWHITE, marginBottom: 8 }}>Analysis failed</div>
-                <p style={{ fontSize: 13, color: MUTED, marginBottom: 24 }}>{error}</p>
+              <div style={{ background: "rgba(146,64,14,0.06)", border: "1px solid rgba(146,64,14,0.2)", padding: 32, borderRadius: 12, textAlign: "center" }}>
+                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 600, color: CHARCOAL, marginBottom: 8 }}>Analysis failed</div>
+                <p style={{ fontSize: 14, color: MUTED, marginBottom: 24 }}>{error}</p>
                 <button onClick={() => setStep(1)} className="btn-primary">Try Again</button>
               </div>
             )}
 
             {report && (
               <div>
-                {/* Report header */}
                 <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: `1px solid ${BORDER}` }}>
-                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>
                     Your Diagnostic Report {diagnosticId ? `· #${diagnosticId}` : ""}
                   </div>
-                  <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 36, fontWeight: 600, color: OFFWHITE, marginBottom: 6 }}>
+                  <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 32, fontWeight: 600, letterSpacing: "-0.02em", color: CHARCOAL, marginBottom: 6 }}>
                     {watch("examLevel")} · Attempt {watch("attemptNumber")}
                   </h2>
-                  <p style={{ fontSize: 13, color: MUTED }}>Grounded in ICAI's own material. Built for {watch("name")}.</p>
+                  <p style={{ fontSize: 14, color: MUTED }}>Grounded in ICAI's own material. Built for {watch("name")}.</p>
                 </div>
 
-                {/* Report body */}
                 <MarkdownReport text={report} />
-                {isAnalyzing && <span style={{ display: "inline-block", width: 2, height: 18, background: AMBER, marginLeft: 4, animation: "blink 0.8s ease-in-out infinite", verticalAlign: "middle" }} />}
+                {isAnalyzing && (
+                  <span style={{ display: "inline-block", width: 2, height: 18, background: AMBER, marginLeft: 4, animation: "blink 0.8s ease-in-out infinite", verticalAlign: "middle" }} />
+                )}
 
                 {!isAnalyzing && (
-                  <div style={{ marginTop: 48, paddingTop: 32, borderTop: `1px solid ${BORDER}`, display: "flex", gap: 16, flexWrap: "wrap" }}>
-                    <button onClick={() => { setStep(1); setReport(""); setDiagnosticId(null); }} style={{ padding: "14px 24px", background: "transparent", border: `1px solid ${BORDER}`, color: MUTED, fontSize: 12, borderRadius: 2, cursor: "pointer", fontFamily: "'IBM Plex Mono',monospace", letterSpacing: ".04em" }}>
+                  <div style={{ marginTop: 48, paddingTop: 32, borderTop: `1px solid ${BORDER}`, display: "flex", gap: 12, flexWrap: "wrap" }}>
+                    <button
+                      onClick={() => { setStep(1); setReport(""); setDiagnosticId(null); }}
+                      className="btn-secondary"
+                    >
                       New Diagnostic
                     </button>
                     <button onClick={() => window.print()} className="btn-primary" style={{ padding: "14px 28px" }}>
@@ -364,13 +417,17 @@ export default function DiagnosticPage() {
       </div>
 
       <style>{`
-        @keyframes logopulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
-        @keyframes dotbounce { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-6px);opacity:1} }
+        @keyframes clarixPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.25);opacity:0.8} }
+        .logo-dot { animation: clarixPulse 2.8s ease-in-out infinite; transform-origin: center; }
+        @keyframes dotbounce { 0%,100%{transform:translateY(0);opacity:.4} 50%{transform:translateY(-7px);opacity:1} }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-        input::placeholder { color: #555; }
-        select option { background: #1A1915; color: #F0EDE6; }
+        input::placeholder { color: #9CA3AF; }
+        input:focus, select:focus { border-color: #D4930A !important; }
+        select option { background: #FFFFFF; color: #1C1917; }
         @media (max-width: 640px) {
-          nav, .diag-inner { padding-left: 20px !important; padding-right: 20px !important; }
+          nav { padding: 0 20px !important; }
+          div[style*="max-width: 720px"] { padding-left: 20px !important; padding-right: 20px !important; }
+          div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>

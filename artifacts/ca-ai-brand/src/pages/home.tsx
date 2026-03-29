@@ -10,21 +10,21 @@ export default function Home() {
     ref.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const borderC = "rgba(240,237,230,0.1)";
-  const mutedC  = "#8A877E";
-  const ink2    = "#1A1915";
-  const ink3    = "#252420";
-  const amber   = "#D4930A";
-  const amberLt = "#F2B93B";
-  const offwhite = "#F0EDE6";
+  const border  = "var(--c-border)";
+  const muted   = "var(--c-muted)";
+  const amber   = "var(--c-amber)";
+  const amberLt = "var(--c-amber-lt)";
+  const charcoal = "var(--c-charcoal)";
+  const surface  = "var(--c-surface)";
+  const white    = "var(--c-white)";
 
   return (
-    <div className="nirnay-page" style={{ minHeight: "100vh" }}>
+    <div className="clarix-page" style={{ minHeight: "100vh" }}>
       <Navbar />
 
       {/* ── HERO ───────────────────────────────────────────── */}
-      <section style={{ padding: "72px 40px 64px", borderBottom: `1px solid ${borderC}` }}>
-        <div className="hero-eyebrow" style={{
+      <section className="animate-in" style={{ padding: "80px 40px 72px", borderBottom: `1px solid ${border}` }}>
+        <div style={{
           fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: amber,
           letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 28,
           display: "flex", alignItems: "center", gap: 10,
@@ -33,21 +33,18 @@ export default function Home() {
           AI-powered CA Final diagnostics
         </div>
 
-        <h1 className="nirnay-h1">
-          Know <em className="nirnay-em">exactly</em> why you're failing.<br />Fix it.
+        <h1 className="clarix-h1">
+          Know <em className="clarix-em">exactly</em> why you're failing.<br />Fix it.
         </h1>
 
-        <p style={{ fontSize: 15, color: mutedC, lineHeight: 1.65, maxWidth: 440, margin: "24px 0 40px", fontWeight: 300 }}>
+        <p style={{ fontSize: 15, color: muted, lineHeight: 1.7, maxWidth: 440, margin: "24px 0 40px" }}>
           Most CA repeaters study more of the same thing that failed them the last time.
-          NirnayAI analyses your weaknesses at the question-type level — mapped to ICAI's
+          Clarix.ai analyses your weaknesses at the question-type level — mapped to ICAI's
           own papers — and builds a precision plan around them.
         </p>
 
         <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-          <button
-            className="btn-primary"
-            onClick={() => scrollTo(ctaRef)}
-          >
+          <button className="btn-primary" onClick={() => scrollTo(ctaRef)}>
             Get Your Diagnostic —{" "}
             <s style={{ opacity: 0.6, fontWeight: 400 }}>₹499</s>{" "}
             Free
@@ -68,43 +65,47 @@ export default function Home() {
       </section>
 
       {/* ── STATS ──────────────────────────────────────────── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderBottom: `1px solid ${borderC}` }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderBottom: `1px solid ${border}` }}>
         {[
           { num: "10", sup: "–15%", label: "CA Final pass rate per attempt. The exam is designed to fail most." },
           { num: "3",  sup: "×",    label: "Average attempts before passing. That's 18+ months of lost time." },
           { num: "₹0", sup: "",     label: "Tools that tell you exactly why you failed your last paper." },
         ].map((s, i) => (
-          <div key={i} style={{ padding: "32px 40px", borderRight: i < 2 ? `1px solid ${borderC}` : undefined }}>
+          <div key={i} style={{
+            padding: "32px 40px",
+            borderRight: i < 2 ? `1px solid ${border}` : undefined,
+            background: i === 2 ? surface : undefined,
+          }}>
             <div className="stat-num-serif">
               {s.num}
               {s.sup && <span style={{ color: amber, fontSize: 26 }}>{s.sup}</span>}
             </div>
-            <div style={{ fontSize: 12, color: mutedC, lineHeight: 1.5 }}>{s.label}</div>
+            <div style={{ fontSize: 13, color: muted, lineHeight: 1.55 }}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* ── PROBLEM ────────────────────────────────────────── */}
       <div style={{
-        padding: "64px 40px", borderBottom: `1px solid ${borderC}`,
+        padding: "72px 40px", borderBottom: `1px solid ${border}`,
         display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start",
       }}
         className="responsive-two-col"
       >
         <div>
           <span className="section-label">The problem</span>
-          <h2 className="nirnay-h2">
+          <h2 className="clarix-h2">
             You're not failing because you're not studying{" "}
-            <em className="nirnay-em">enough.</em>
+            <em className="clarix-em">enough.</em>
           </h2>
-          <p style={{ fontSize: 14, color: mutedC, lineHeight: 1.75, fontWeight: 300 }}>
+          <p style={{ fontSize: 15, color: muted, lineHeight: 1.7 }}>
             You're failing because you don't know what to study differently. Every
             coaching platform sells you more content — more videos, more notes, more mock
-            tests. None of them diagnose you. NirnayAI does.
+            tests. None of them diagnose you. Clarix.ai does.
           </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
           {[
             {
               n: "01", title: "Concept gaps aren't visible",
@@ -120,16 +121,16 @@ export default function Home() {
             },
           ].map((item, i) => (
             <div key={i} style={{
-              display: "flex", alignItems: "flex-start", gap: 14,
-              padding: "18px 0", borderBottom: `1px solid ${borderC}`,
-              borderTop: i === 0 ? `1px solid ${borderC}` : undefined,
+              display: "flex", alignItems: "flex-start", gap: 16,
+              padding: "20px 0", borderBottom: `1px solid ${border}`,
+              borderTop: i === 0 ? `1px solid ${border}` : undefined,
             }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: mutedC, marginTop: 2, minWidth: 24 }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: amber, marginTop: 3, minWidth: 24, letterSpacing: ".06em" }}>
                 {item.n}
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: offwhite, marginBottom: 4 }}>{item.title}</div>
-                <div style={{ fontSize: 13, color: mutedC, lineHeight: 1.55 }}>{item.body}</div>
+                <div style={{ fontSize: 15, fontWeight: 500, color: charcoal, marginBottom: 5, letterSpacing: "-0.01em" }}>{item.title}</div>
+                <div style={{ fontSize: 14, color: muted, lineHeight: 1.65 }}>{item.body}</div>
               </div>
             </div>
           ))}
@@ -137,11 +138,11 @@ export default function Home() {
       </div>
 
       {/* ── HOW IT WORKS ───────────────────────────────────── */}
-      <div ref={howRef} style={{ padding: "64px 40px", borderBottom: `1px solid ${borderC}` }}>
+      <div ref={howRef} style={{ padding: "72px 40px", borderBottom: `1px solid ${border}`, background: surface }}>
         <span className="section-label">How it works</span>
-        <h2 className="nirnay-h2">Three steps. One <em className="nirnay-em">clear</em> plan.</h2>
+        <h2 className="clarix-h2">Three steps. One <em className="clarix-em">clear</em> plan.</h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 2, marginTop: 40 }}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, marginTop: 40 }}
           className="responsive-three-col"
         >
           {[
@@ -152,7 +153,7 @@ export default function Home() {
             },
             {
               step: "STEP 02", title: "AI analyses your failure pattern",
-              body: "NirnayAI cross-references your data against ICAI past papers, RTPs, and MTP patterns to identify your exact weakness profile.",
+              body: "Clarix.ai cross-references your data against ICAI past papers, RTPs, and MTP patterns to identify your exact weakness profile.",
               tag: "ICAI-mapped AI",
             },
             {
@@ -164,7 +165,7 @@ export default function Home() {
             <div key={i} className="step-card">
               <div className="step-num-tag">{s.step}</div>
               <div className="step-title">{s.title}</div>
-              <div style={{ fontSize: 13, color: mutedC, lineHeight: 1.65 }}>{s.body}</div>
+              <div style={{ fontSize: 14, color: muted, lineHeight: 1.65 }}>{s.body}</div>
               <div className="step-tag">{s.tag}</div>
             </div>
           ))}
@@ -173,26 +174,25 @@ export default function Home() {
 
       {/* ── WHY TRUST ──────────────────────────────────────── */}
       <div style={{
-        padding: "64px 40px", borderBottom: `1px solid ${borderC}`,
+        padding: "72px 40px", borderBottom: `1px solid ${border}`,
         display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start",
       }}
         className="responsive-two-col"
       >
-        {/* Left */}
         <div>
           <span className="section-label">Why trust this</span>
-          <h2 className="nirnay-h2">
-            Built on <em className="nirnay-em">ICAI's</em> own material. Nothing else.
+          <h2 className="clarix-h2">
+            Built on <em className="clarix-em">ICAI's</em> own material. Nothing else.
           </h2>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 24, marginBottom: 32 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 24, marginBottom: 28 }}>
             {["BCom graduate", "CA aspirant", "AI researcher", "ICAI curriculum specialist"].map((tag) => (
               <span key={tag} className="trust-pill">{tag}</span>
             ))}
           </div>
 
-          <p style={{ fontSize: 14, color: mutedC, lineHeight: 1.75 }}>
-            NirnayAI was built by a BCom graduate and CA aspirant who experienced the
+          <p style={{ fontSize: 15, color: muted, lineHeight: 1.7 }}>
+            Clarix.ai was built by a BCom graduate and CA aspirant who experienced the
             preparation gap firsthand — and spent months mapping ICAI's exam patterns,
             past papers, and marking schemes using AI. The diagnostic is grounded entirely
             in ICAI's published material: study material, RTPs, MTPs, and suggested
@@ -201,7 +201,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Right — Insight card */}
         <div className="insight-card">
           <span className="insight-label">What the diagnostic is built on</span>
           {[
@@ -212,12 +211,12 @@ export default function Home() {
           ].map((item, i) => (
             <div key={i} style={{
               display: "flex", gap: 14, padding: "14px 0",
-              borderBottom: i < 3 ? `1px solid ${borderC}` : undefined,
+              borderBottom: i < 3 ? `1px solid ${border}` : undefined,
             }}>
               <div className="insight-dot" />
               <div>
-                <div style={{ fontSize: 13, color: offwhite, lineHeight: 1.6 }}>{item.text}</div>
-                <div style={{ fontSize: 12, color: mutedC, marginTop: 3 }}>{item.sub}</div>
+                <div style={{ fontSize: 14, color: charcoal, lineHeight: 1.6, fontWeight: 500 }}>{item.text}</div>
+                <div style={{ fontSize: 13, color: muted, marginTop: 3 }}>{item.sub}</div>
               </div>
             </div>
           ))}
@@ -226,13 +225,16 @@ export default function Home() {
 
       {/* ── DISCLAIMER ─────────────────────────────────────── */}
       <div style={{
-        padding: "20px 40px", background: ink2, borderBottom: `1px solid ${borderC}`,
+        padding: "20px 40px",
+        background: white,
+        borderBottom: `1px solid ${border}`,
+        borderLeft: `3px solid ${amber}`,
         display: "flex", alignItems: "flex-start", gap: 14,
       }}>
         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: amber, flexShrink: 0, paddingTop: 1 }}>!</div>
-        <p style={{ fontSize: 12, color: mutedC, lineHeight: 1.65 }}>
-          <strong style={{ color: offwhite, fontWeight: 500 }}>Full transparency:</strong>{" "}
-          NirnayAI is an AI-powered diagnostic tool built by a BCom graduate and CA aspirant —
+        <p style={{ fontSize: 13, color: muted, lineHeight: 1.65 }}>
+          <strong style={{ color: charcoal, fontWeight: 500 }}>Full transparency:</strong>{" "}
+          Clarix.ai is an AI-powered diagnostic tool built by a BCom graduate and CA aspirant —
           not a registered Chartered Accountant or a CA coaching institute. The diagnostic
           analyses ICAI exam patterns using AI and is reviewed for quality before delivery.
           It is not a substitute for professional CA guidance or ICAI-approved coaching.
@@ -241,7 +243,7 @@ export default function Home() {
       </div>
 
       {/* ── CTA ────────────────────────────────────────────── */}
-      <div ref={ctaRef} style={{ padding: "80px 40px", textAlign: "center" }}>
+      <div ref={ctaRef} style={{ padding: "96px 40px", textAlign: "center", background: surface }}>
         <div style={{ maxWidth: 540, margin: "0 auto" }}>
           <div className="cta-price">
             One-time ·{" "}
@@ -250,7 +252,7 @@ export default function Home() {
             · No subscription
           </div>
           <div className="cta-h">Get your diagnostic report.</div>
-          <p style={{ fontSize: 14, color: mutedC, lineHeight: 1.65, marginBottom: 36 }}>
+          <p style={{ fontSize: 15, color: muted, lineHeight: 1.7, marginBottom: 36 }}>
             Stop revising blindly. Find out exactly which gaps are costing you marks —
             and get a plan that fixes them before your next attempt.
           </p>
@@ -271,12 +273,12 @@ export default function Home() {
 
       {/* ── FOOTER ─────────────────────────────────────────── */}
       <footer style={{
-        padding: "24px 40px", borderTop: `1px solid ${borderC}`,
+        padding: "24px 40px", borderTop: `1px solid ${border}`,
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: mutedC,
-        flexWrap: "wrap", gap: 8,
+        fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: muted,
+        flexWrap: "wrap", gap: 8, background: white,
       }}>
-        <span>© 2025 NirnayAI</span>
+        <span>© 2025 Clarix.ai</span>
         <span>AI-powered · ICAI-grounded · Built by a CA aspirant</span>
       </footer>
 
@@ -284,7 +286,10 @@ export default function Home() {
         @media (max-width: 640px) {
           .responsive-two-col { grid-template-columns: 1fr !important; gap: 40px !important; }
           .responsive-three-col { grid-template-columns: 1fr !important; }
-          section, .responsive-two-col, .how-section-inner { padding-left: 20px !important; padding-right: 20px !important; }
+          section, .responsive-two-col, .clarix-nav { padding-left: 20px !important; padding-right: 20px !important; }
+          div[style*="padding: 72px 40px"], div[style*="padding: 80px 40px"], div[style*="padding: 96px 40px"], div[style*="padding: 32px 40px"], div[style*="padding: 20px 40px"], div[style*="padding: 24px 40px"] {
+            padding-left: 20px !important; padding-right: 20px !important;
+          }
         }
       `}</style>
     </div>
