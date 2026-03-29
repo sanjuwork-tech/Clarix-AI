@@ -246,7 +246,7 @@ export default function Home() {
           <div className="cta-price">
             One-time ·{" "}
             <s style={{ opacity: 0.5 }}>₹499</s>{" "}
-            <span style={{ color: AMBER_LT }}>Free for first 50 aspirants</span>{" "}
+            <span style={{ color: amberLt }}>Free for first 50 aspirants</span>{" "}
             · No subscription
           </div>
           <div className="cta-h">Get your diagnostic report.</div>
