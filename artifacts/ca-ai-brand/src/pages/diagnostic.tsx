@@ -1,138 +1,309 @@
-import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "wouter";
 
-const CHARCOAL  = "#1C1917";
-const PARCHMENT = "#FAF8F4";
-const SURFACE   = "#F5F2EC";
-const WHITE     = "#FFFFFF";
-const AMBER     = "#D4930A";
-const AMBER_LT  = "#F2B93B";
-const AMBER_DEEP = "#7C3F00";
-const MUTED     = "#78716C";
-const BORDER    = "#E7E5E0";
+/* ── Design tokens ── */
+const C = {
+  charcoal:  "#1C1917",
+  parchment: "#FAF8F4",
+  surface:   "#F5F2EC",
+  white:     "#FFFFFF",
+  amber:     "#D4930A",
+  amberLt:   "#F2B93B",
+  amberDeep: "#7C3F00",
+  muted:     "#78716C",
+  border:    "#E7E5E0",
+  error:     "#92400E",
+  pass:      "#1A4731",
+  passBg:    "rgba(45,106,79,0.1)",
+  passBorder:"rgba(45,106,79,0.25)",
+};
 
-const CA_LEVELS: Record<string, string[]> = {
-  "CA Foundation": [
-    "Principles and Practice of Accounting",
-    "Business Laws & Business Correspondence",
-    "Business Mathematics & Logical Reasoning",
-    "Business Economics & Business & Commercial Knowledge",
-  ],
-  "CA Intermediate — Group 1": [
-    "Accounting",
-    "Corporate & Other Laws",
-    "Cost and Management Accounting",
-    "Taxation",
-  ],
-  "CA Intermediate — Group 2": [
-    "Advanced Accounting",
-    "Auditing and Assurance",
-    "Enterprise Information Systems & Strategic Management",
-    "Financial Management & Economics for Finance",
-  ],
-  "CA Final — Group 1": [
+/* ── CA Final paper lists ── */
+const PAPERS: Record<string, string[]> = {
+  "Group 1": [
     "Financial Reporting (FR)",
     "Strategic Financial Management (SFM)",
     "Advanced Auditing & Professional Ethics",
     "Corporate & Economic Laws",
   ],
-  "CA Final — Group 2": [
-    "Strategic Cost Management & Performance Evaluation",
+  "Group 2": [
+    "Strategic Cost Management & Performance Evaluation (SCMPE)",
     "Elective Paper",
     "Direct Tax Laws & International Taxation",
     "Indirect Tax Laws",
   ],
 };
 
-const WEAK_AREAS = [
-  "Theory questions", "Practical sums", "Time management",
-  "MCQ sections", "Case study questions", "Remembering standards",
-  "Recent amendments", "Answer format/writing", "Revision volume", "Conceptual clarity",
-];
+function getPapers(group: string): string[] {
+  if (group === "Both") return [...PAPERS["Group 1"], ...PAPERS["Group 2"]];
+  return PAPERS[group] || [];
+}
 
-type Subject = { subject: string; score: string; maxScore: string };
+/* ── Form data type ── */
+type ScoreEntry = { subject: string; score: string };
+type ConfidenceEntry = { subject: string; rating: "Strong" | "Shaky" | "Weak" | "" };
 type FormData = {
-  name: string; email: string; examLevel: string;
-  attemptNumber: string; studyHours: string;
-  subjects: Subject[]; weakAreas: string[];
+  name: string; email: string;
+  group: "Group 1" | "Group 2" | "Both" | "";
+  isRepeat: "yes" | "no" | "";
+  attemptCount: string;
+  targetSession: string; targetYear: string;
+  studyHours: string;
+  scores: ScoreEntry[];
+  exemptions: string[];
+  attemptedAll: "yes" | "some" | "no" | "";
+  confidenceRatings: ConfidenceEntry[];
+  weakestChapters: string;
+  struggleType: string;
+  timeManagement: string;
+  studyMethod: string;
+  revisionMaterial: string[];
+  mainReason: string;
 };
 
+/* ── Markdown renderer ── */
 function MarkdownReport({ text }: { text: string }) {
   return (
     <div>
       {text.split("\n").map((line, i) => {
         if (line.startsWith("## "))
           return (
-            <h3 key={i} style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 600,
-              color: CHARCOAL, margin: "32px 0 12px", paddingBottom: 10,
-              borderBottom: `2px solid ${BORDER}`, letterSpacing: "-0.01em",
-            }}>{line.replace("## ", "")}</h3>
+            <h3 key={i} style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 20, fontWeight: 600, color: C.charcoal, margin: "32px 0 10px", paddingBottom: 10, borderBottom: `2px solid ${C.border}`, letterSpacing: "-0.01em" }}>
+              {line.replace("## ", "")}
+            </h3>
           );
         if (line.startsWith("### "))
-          return (
-            <h4 key={i} style={{
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 600,
-              color: CHARCOAL, margin: "20px 0 6px",
-            }}>{line.replace("### ", "")}</h4>
-          );
+          return <h4 key={i} style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 600, color: C.charcoal, margin: "18px 0 5px" }}>{line.replace("### ", "")}</h4>;
         if (line.startsWith("- ") || line.startsWith("* "))
           return (
-            <div key={i} style={{ display: "flex", gap: 10, margin: "6px 0" }}>
-              <span style={{ color: AMBER, marginTop: 2, flexShrink: 0 }}>—</span>
-              <span style={{ fontSize: 14, color: MUTED, lineHeight: 1.7 }}
-                dangerouslySetInnerHTML={{ __html: line.replace(/^[-*] /, "").replace(/\*\*(.*?)\*\*/g, `<strong style="color:${CHARCOAL}">$1</strong>`) }} />
+            <div key={i} style={{ display: "flex", gap: 10, margin: "5px 0" }}>
+              <span style={{ color: C.amber, marginTop: 2, flexShrink: 0 }}>—</span>
+              <span style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}
+                dangerouslySetInnerHTML={{ __html: line.replace(/^[-*] /, "").replace(/\*\*(.*?)\*\*/g, `<strong style="color:${C.charcoal}">$1</strong>`) }} />
             </div>
           );
-        if (line.trim() === "") return <div key={i} style={{ height: 10 }} />;
+        if (line.trim() === "") return <div key={i} style={{ height: 8 }} />;
         return (
-          <p key={i} style={{ fontSize: 14, color: MUTED, lineHeight: 1.75 }}
-            dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, `<strong style="color:${CHARCOAL}">$1</strong>`) }} />
+          <p key={i} style={{ fontSize: 14, color: C.muted, lineHeight: 1.75 }}
+            dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, `<strong style="color:${C.charcoal}">$1</strong>`) }} />
         );
       })}
     </div>
   );
 }
 
+/* ── Shared input styles ── */
+const inputSx: React.CSSProperties = {
+  width: "100%", background: C.white, border: `1px solid ${C.border}`,
+  color: C.charcoal, padding: "11px 14px", fontSize: 14,
+  fontFamily: "'Space Grotesk',sans-serif", outline: "none",
+  borderRadius: 8, transition: "border-color .2s",
+};
+const labelSx: React.CSSProperties = {
+  display: "block", fontFamily: "'IBM Plex Mono',monospace", fontSize: 10,
+  color: C.muted, letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 6,
+};
+const radioRowSx: React.CSSProperties = {
+  display: "flex", gap: 8, flexWrap: "wrap",
+};
+
+function RadioGroup({
+  options, value, onChange, small,
+}: { options: string[]; value: string; onChange: (v: string) => void; small?: boolean }) {
+  return (
+    <div style={radioRowSx}>
+      {options.map(o => (
+        <button key={o} type="button" onClick={() => onChange(o)}
+          style={{
+            padding: small ? "6px 12px" : "10px 18px",
+            fontSize: small ? 12 : 13,
+            fontFamily: "'Space Grotesk',sans-serif",
+            borderRadius: 8, cursor: "pointer",
+            border: `1px solid ${value === o ? "rgba(212,147,10,0.5)" : C.border}`,
+            background: value === o ? "rgba(212,147,10,0.08)" : C.white,
+            color: value === o ? C.amberDeep : C.muted,
+            fontWeight: value === o ? 500 : 400,
+            transition: "all .15s",
+          }}>
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function MultiCheck({
+  options, value, onChange,
+}: { options: string[]; value: string[]; onChange: (v: string[]) => void }) {
+  const toggle = (o: string) =>
+    onChange(value.includes(o) ? value.filter(x => x !== o) : [...value, o]);
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+      {options.map(o => {
+        const sel = value.includes(o);
+        return (
+          <button key={o} type="button" onClick={() => toggle(o)}
+            style={{
+              padding: "7px 13px", fontSize: 12,
+              fontFamily: "'IBM Plex Mono',monospace", letterSpacing: ".03em",
+              borderRadius: 6, cursor: "pointer",
+              border: `1px solid ${sel ? "rgba(212,147,10,0.4)" : C.border}`,
+              background: sel ? "rgba(212,147,10,0.08)" : C.white,
+              color: sel ? C.amberDeep : C.muted,
+              transition: "all .15s",
+            }}>
+            {sel ? "✓ " : ""}{o}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Progress bar ── */
+function ProgressBar({ current, total }: { current: number; total: number }) {
+  const pct = Math.round((current / total) * 100);
+  return (
+    <div style={{ marginBottom: 40 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.amber, letterSpacing: ".08em", textTransform: "uppercase" }}>
+          Section {current} of {total}
+        </span>
+        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.muted }}>{pct}%</span>
+      </div>
+      <div style={{ height: 4, background: C.border, borderRadius: 2, overflow: "hidden" }}>
+        <div style={{
+          height: "100%", background: C.amber, borderRadius: 2,
+          width: `${pct}%`, transition: "width 0.4s ease",
+        }} />
+      </div>
+    </div>
+  );
+}
+
+/* ── Section heading ── */
+function SectionHead({
+  eyebrow, title, sub, time,
+}: { eyebrow: string; title: string; sub?: string; time: string }) {
+  return (
+    <div style={{ marginBottom: 36 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+        <span style={{ display: "inline-block", width: 24, height: 1, background: C.amber }} />
+        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.amber, letterSpacing: ".1em", textTransform: "uppercase" }}>{eyebrow}</span>
+        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.muted, marginLeft: "auto" }}>≈ {time}</span>
+      </div>
+      <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "clamp(24px,4vw,36px)", fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em", color: C.charcoal, marginBottom: 10 }}>
+        {title}
+      </h1>
+      {sub && <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}>{sub}</p>}
+    </div>
+  );
+}
+
+/* ── Field wrapper ── */
+function Field({ label, children, span2 }: { label: string; children: React.ReactNode; span2?: boolean }) {
+  return (
+    <div style={{ gridColumn: span2 ? "1 / -1" : undefined }}>
+      <label style={labelSx}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
 export default function DiagnosticPage() {
-  const [step, setStep] = useState(1);
+  const [section, setSection] = useState(1);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [report, setReport] = useState("");
   const [diagnosticId, setDiagnosticId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
-  const { register, handleSubmit, watch, setValue, control } = useForm<FormData>({
-    defaultValues: { name: "", email: "", examLevel: "", attemptNumber: "1", studyHours: "", subjects: [], weakAreas: [] },
+  const { register, watch, setValue, handleSubmit, getValues } = useForm<FormData>({
+    defaultValues: {
+      name: "", email: "", group: "", isRepeat: "", attemptCount: "",
+      targetSession: "", targetYear: "", studyHours: "",
+      scores: [], exemptions: [], attemptedAll: "",
+      confidenceRatings: [], weakestChapters: "",
+      struggleType: "", timeManagement: "",
+      studyMethod: "", revisionMaterial: [], mainReason: "",
+    },
   });
-  const { fields, replace } = useFieldArray({ control, name: "subjects" });
 
-  const examLevel = watch("examLevel");
-  const weakAreas = watch("weakAreas") || [];
+  const group    = watch("group");
+  const isRepeat = watch("isRepeat");
+  const scores   = watch("scores");
+  const exemptions = watch("exemptions");
+  const revisionMaterial = watch("revisionMaterial");
+  const confidenceRatings = watch("confidenceRatings");
 
-  const handleLevelChange = (level: string) => {
-    setValue("examLevel", level);
-    replace((CA_LEVELS[level] || []).map(s => ({ subject: s, score: "", maxScore: "100" })));
+  /* Sync papers and confidence slots when group changes */
+  useEffect(() => {
+    if (!group) return;
+    const papers = getPapers(group);
+    setValue("scores", papers.map(p => ({ subject: p, score: "" })));
+    setValue("confidenceRatings", papers.map(p => ({ subject: p, rating: "" })));
+    setValue("exemptions", []);
+  }, [group, setValue]);
+
+  const totalSections = isRepeat === "yes" ? 4 : 3;
+  /* Section 2 only exists for repeaters; jump S1→S3 for first-timers */
+  const nextSection = () => {
+    if (section === 1 && isRepeat !== "yes") setSection(3);
+    else setSection(s => s + 1);
+  };
+  const prevSection = () => {
+    if (section === 3 && isRepeat !== "yes") setSection(1);
+    else setSection(s => s - 1);
   };
 
-  const toggleWeakArea = (area: string) => {
-    setValue("weakAreas", weakAreas.includes(area) ? weakAreas.filter(a => a !== area) : [...weakAreas, area]);
-  };
+  /* For progress display, normalise section to 1-totalSections */
+  const progressCurrent = isRepeat !== "yes" && section >= 3 ? section - 1 : section;
+
+  const canSection1 =
+    watch("name").trim() && watch("email").trim() &&
+    group && isRepeat &&
+    watch("targetSession") && watch("targetYear") && watch("studyHours");
+
+  const canSection2 = watch("attemptedAll");
+
+  const canSection3 =
+    confidenceRatings.every(r => r.rating) &&
+    watch("struggleType") && watch("timeManagement");
 
   const onSubmit = async (data: FormData) => {
-    setIsAnalyzing(true); setReport(""); setError(""); setStep(3);
+    setIsAnalyzing(true); setReport(""); setError("");
+    const papers = getPapers(data.group || "");
     try {
       const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const body = {
+        name: data.name,
+        email: data.email,
+        examLevel: `CA Final — ${data.group}`,
+        attemptNumber: parseInt(data.attemptCount) || 1,
+        group: data.group,
+        isRepeat: data.isRepeat === "yes",
+        attemptCount: parseInt(data.attemptCount) || null,
+        targetDate: `${data.targetSession} ${data.targetYear}`,
+        studyHours: data.studyHours,
+        subjects: papers.map((p, i) => ({
+          subject: p,
+          score: data.scores[i]?.score ? parseInt(data.scores[i].score) : null,
+          maxScore: 100,
+        })),
+        exemptions: data.exemptions,
+        attemptedAll: data.attemptedAll,
+        confidenceRatings: data.confidenceRatings.map(r => ({ subject: r.subject, rating: r.rating })),
+        weakAreas: [],
+        weakestChapters: data.weakestChapters,
+        struggleType: data.struggleType,
+        timeManagement: data.timeManagement,
+        studyMethod: data.studyMethod,
+        revisionMaterial: data.revisionMaterial,
+        mainReason: data.mainReason,
+      };
       const res = await fetch(`${BASE}/api/diagnostic/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: data.name, email: data.email, examLevel: data.examLevel,
-          attemptNumber: parseInt(data.attemptNumber) || 1,
-          studyHours: data.studyHours || null,
-          subjects: data.subjects.map(s => ({ subject: s.subject, score: s.score ? parseInt(s.score) : null, maxScore: parseInt(s.maxScore) || 100 })),
-          weakAreas: data.weakAreas,
-        }),
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Analysis failed. Please try again.");
       const reader = res.body!.getReader();
@@ -159,260 +330,374 @@ export default function DiagnosticPage() {
     }
   };
 
-  const inputStyle = {
-    width: "100%", background: WHITE, border: `1px solid ${BORDER}`, color: CHARCOAL,
-    padding: "12px 16px", fontSize: 14, fontFamily: "'Space Grotesk', sans-serif",
-    outline: "none", borderRadius: 8, transition: "border-color .2s",
-  };
-
-  const labelStyle = {
-    display: "block" as const, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11,
-    color: MUTED, letterSpacing: ".08em", textTransform: "uppercase" as const, marginBottom: 6,
-  };
+  const papers = group ? getPapers(group) : [];
 
   return (
-    <div style={{ background: PARCHMENT, minHeight: "100vh", color: CHARCOAL, fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div style={{ background: C.parchment, minHeight: "100vh", color: C.charcoal, fontFamily: "'Space Grotesk',sans-serif" }}>
 
       {/* Nav */}
-      <nav style={{
-        height: 64, display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 40px", background: "rgba(250,248,244,0.92)", backdropFilter: "blur(8px)",
-        borderBottom: `1px solid ${BORDER}`, position: "sticky", top: 0, zIndex: 100,
-      }}>
+      <nav style={{ height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 40px", background: "rgba(250,248,244,0.92)", backdropFilter: "blur(8px)", borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, zIndex: 100 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
-          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-            <path d="M 26 16 A 10 10 0 1 1 21 7.34" stroke={AMBER} strokeWidth="3" strokeLinecap="round" />
-            <circle className="logo-dot" cx="24.66" cy="11" r="3" fill={AMBER} />
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+            <path d="M 26 16 A 10 10 0 1 1 21 7.34" stroke={C.amber} strokeWidth="3" strokeLinecap="round"/>
+            <circle className="logo-dot" cx="24.66" cy="11" r="3" fill={C.amber}/>
           </svg>
-          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 600, letterSpacing: "-0.3px", color: CHARCOAL }}>
-            Clarix<span style={{ fontFamily: "'IBM Plex Mono', monospace", fontWeight: 400, color: AMBER, letterSpacing: "2.5px", fontSize: 13 }}>.AI</span>
+          <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 16, fontWeight: 600, letterSpacing: "-0.3px", color: C.charcoal }}>
+            Clarix<span style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 400, color: C.amber, letterSpacing: "2.5px", fontSize: 13 }}>.AI</span>
           </span>
         </Link>
-        <div style={{
-          fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: AMBER_DEEP,
-          background: "rgba(212,147,10,0.08)", border: "1px solid rgba(212,147,10,0.25)",
-          padding: "4px 10px", borderRadius: 4, letterSpacing: ".08em", textTransform: "uppercase",
-        }}>
+        <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: C.amberDeep, background: "rgba(212,147,10,0.08)", border: "1px solid rgba(212,147,10,0.25)", padding: "4px 10px", borderRadius: 4, letterSpacing: ".08em", textTransform: "uppercase" }}>
           CA Diagnostic Tool
         </div>
       </nav>
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "56px 40px 80px" }}>
 
-        {/* STEP 1 */}
-        {step === 1 && (
-          <div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ display: "inline-block", width: 24, height: 1, background: AMBER }} />
-              Step 01 of 02
-            </div>
-            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(28px,5vw,44px)", fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em", color: CHARCOAL, marginBottom: 12 }}>
-              Tell us about your attempt.
-            </h1>
-            <p style={{ fontSize: 15, color: MUTED, lineHeight: 1.7, marginBottom: 40, maxWidth: 480 }}>
-              Clarix.ai needs your exam data to diagnose your failure pattern. This takes about 10 minutes.
-            </p>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px 28px" }}>
-              <div>
-                <label style={labelStyle}>Full Name</label>
-                <input {...register("name", { required: true })} placeholder="Bhargavi Sharma" style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Email</label>
-                <input {...register("email", { required: true })} type="email" placeholder="you@example.com" style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Attempt Number</label>
-                <select {...register("attemptNumber")} style={{ ...inputStyle, appearance: "none" as const }}>
-                  {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n === 1 ? "1st (First)" : n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`} attempt</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={labelStyle}>Daily Study Hours</label>
-                <select {...register("studyHours")} style={{ ...inputStyle, appearance: "none" as const }}>
-                  <option value="">Select...</option>
-                  <option value="less than 4 hours">Less than 4 hrs</option>
-                  <option value="4-6 hours">4–6 hrs</option>
-                  <option value="6-8 hours">6–8 hrs</option>
-                  <option value="8-10 hours">8–10 hrs</option>
-                  <option value="10+ hours">10+ hrs</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ marginTop: 32 }}>
-              <label style={{ ...labelStyle, marginBottom: 12 }}>Select Your CA Level</label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                {Object.keys(CA_LEVELS).map(level => (
-                  <button key={level} type="button" onClick={() => handleLevelChange(level)}
-                    style={{
-                      padding: "14px 18px", textAlign: "left", fontSize: 14, fontWeight: 400,
-                      background: examLevel === level ? "rgba(212,147,10,0.08)" : WHITE,
-                      border: `1px solid ${examLevel === level ? "rgba(212,147,10,0.4)" : BORDER}`,
-                      color: examLevel === level ? AMBER_DEEP : MUTED,
-                      borderRadius: 8, cursor: "pointer", transition: "all .15s",
-                      fontFamily: "'Space Grotesk', sans-serif",
-                    }}>
-                    {level}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              disabled={!examLevel || !watch("name") || !watch("email")}
-              onClick={() => setStep(2)}
-              className="btn-primary"
-              style={{ marginTop: 40, padding: "14px 32px", opacity: (!examLevel || !watch("name") || !watch("email")) ? 0.4 : 1, cursor: (!examLevel || !watch("name") || !watch("email")) ? "not-allowed" : "pointer" }}
-            >
-              Enter Subject Marks →
-            </button>
-          </div>
-        )}
-
-        {/* STEP 2 */}
-        {step === 2 && (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ display: "inline-block", width: 24, height: 1, background: AMBER }} />
-              Step 02 of 02
-            </div>
-            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(24px,4vw,38px)", fontWeight: 600, lineHeight: 1.1, letterSpacing: "-0.02em", color: CHARCOAL, marginBottom: 6 }}>
-              Enter your subject marks.
-            </h1>
-            <p style={{ fontSize: 14, color: MUTED, marginBottom: 32 }}>{examLevel} — leave score blank if not attempted</p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 0, background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 12, overflow: "hidden" }}>
-              {fields.map((field, i) => {
-                const scoreVal = watch(`subjects.${i}.score`);
-                const scoreNum = scoreVal ? parseInt(scoreVal) : null;
-                const pass = scoreNum !== null && scoreNum >= 40;
-                return (
-                  <div key={field.id} style={{
-                    display: "grid", gridTemplateColumns: "1fr auto auto", alignItems: "center",
-                    gap: 12, padding: "16px 20px",
-                    borderBottom: i < fields.length - 1 ? `1px solid ${BORDER}` : undefined,
-                  }}>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 500, color: CHARCOAL }}>{field.subject}</div>
-                      <div style={{ fontSize: 11, color: MUTED, fontFamily: "'IBM Plex Mono', monospace", marginTop: 2, letterSpacing: ".04em" }}>Max 100</div>
-                    </div>
-                    <input
-                      {...register(`subjects.${i}.score`)}
-                      type="number" placeholder="Score" min="0" max="100"
-                      style={{ width: 80, background: SURFACE, border: `1px solid ${BORDER}`, color: CHARCOAL, padding: "10px 12px", fontSize: 13, textAlign: "center", outline: "none", borderRadius: 6, fontFamily: "'IBM Plex Mono', monospace" }}
-                    />
-                    {scoreNum !== null ? (
-                      <div style={{
-                        fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: ".08em",
-                        textTransform: "uppercase", padding: "4px 9px", borderRadius: 4,
-                        color: pass ? "#1A4731" : "#7C3F00",
-                        background: pass ? "rgba(45,106,79,0.1)" : "rgba(146,64,14,0.1)",
-                        border: `1px solid ${pass ? "rgba(45,106,79,0.25)" : "rgba(146,64,14,0.25)"}`,
-                      }}>
-                        {pass ? "Pass" : "Fail"}
-                      </div>
-                    ) : <div style={{ width: 52 }} />}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div style={{ marginTop: 32 }}>
-              <label style={{ ...labelStyle, marginBottom: 12 }}>Your Weak Areas (select all that apply)</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {WEAK_AREAS.map(area => {
-                  const sel = weakAreas.includes(area);
-                  return (
-                    <button key={area} type="button" onClick={() => toggleWeakArea(area)}
-                      style={{
-                        padding: "7px 13px", fontSize: 12,
-                        fontFamily: "'IBM Plex Mono', monospace", letterSpacing: ".04em",
-                        borderRadius: 6, cursor: "pointer",
-                        border: `1px solid ${sel ? "rgba(212,147,10,0.4)" : BORDER}`,
-                        background: sel ? "rgba(212,147,10,0.08)" : WHITE,
-                        color: sel ? AMBER_DEEP : MUTED,
-                        transition: "all .15s",
-                      }}>
-                      {sel ? "✓ " : ""}{area}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: 12, marginTop: 40 }}>
-              <button type="button" onClick={() => setStep(1)} className="btn-secondary">
-                ← Back
-              </button>
-              <button type="submit" className="btn-primary" style={{ padding: "14px 32px" }}>
-                Generate My Diagnostic Report →
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* STEP 3 — Report */}
-        {step === 3 && (
+        {/* ── REPORT VIEW ─────────────────────────────────── */}
+        {(isAnalyzing || report || error) && (
           <div>
             {isAnalyzing && !report && (
               <div style={{ textAlign: "center", padding: "80px 0" }}>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 24 }}>Analysing your failure pattern</div>
-                <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 32, fontWeight: 600, letterSpacing: "-0.02em", color: CHARCOAL, marginBottom: 16 }}>AI is building your report...</h2>
-                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.7, maxWidth: 380, margin: "0 auto" }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.amber, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 24 }}>
+                  Analysing your failure pattern
+                </div>
+                <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 30, fontWeight: 600, letterSpacing: "-0.02em", color: C.charcoal, marginBottom: 14 }}>
+                  AI is building your report...
+                </h2>
+                <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, maxWidth: 380, margin: "0 auto" }}>
                   Cross-referencing your scores against ICAI's past papers, RTPs, and marking schemes.
                 </p>
                 <div style={{ marginTop: 32, display: "flex", justifyContent: "center", gap: 7 }}>
-                  {[0, 1, 2].map(i => (
-                    <div key={i} style={{ width: 7, height: 7, background: AMBER, borderRadius: "50%", animation: `dotbounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
-                  ))}
+                  {[0,1,2].map(i => <div key={i} style={{ width: 7, height: 7, background: C.amber, borderRadius: "50%", animation: `dotbounce 1.2s ease-in-out ${i*0.2}s infinite` }} />)}
                 </div>
               </div>
             )}
 
             {error && (
-              <div style={{ background: "rgba(146,64,14,0.06)", border: "1px solid rgba(146,64,14,0.2)", padding: 32, borderRadius: 12, textAlign: "center" }}>
-                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 600, color: CHARCOAL, marginBottom: 8 }}>Analysis failed</div>
-                <p style={{ fontSize: 14, color: MUTED, marginBottom: 24 }}>{error}</p>
-                <button onClick={() => setStep(1)} className="btn-primary">Try Again</button>
+              <div style={{ background: "rgba(146,64,14,0.06)", border: `1px solid rgba(146,64,14,0.2)`, padding: 32, borderRadius: 12, textAlign: "center" }}>
+                <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 600, color: C.charcoal, marginBottom: 8 }}>Analysis failed</div>
+                <p style={{ fontSize: 14, color: C.muted, marginBottom: 24 }}>{error}</p>
+                <button onClick={() => { setError(""); setSection(1); }} className="btn-primary">Try Again</button>
               </div>
             )}
 
             {report && (
               <div>
-                <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: `1px solid ${BORDER}` }}>
-                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: AMBER, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>
+                <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: `1px solid ${C.border}` }}>
+                  <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.amber, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>
                     Your Diagnostic Report {diagnosticId ? `· #${diagnosticId}` : ""}
                   </div>
-                  <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 32, fontWeight: 600, letterSpacing: "-0.02em", color: CHARCOAL, marginBottom: 6 }}>
-                    {watch("examLevel")} · Attempt {watch("attemptNumber")}
+                  <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 30, fontWeight: 600, letterSpacing: "-0.02em", color: C.charcoal, marginBottom: 6 }}>
+                    CA Final — {getValues("group")} · {getValues("isRepeat") === "yes" ? `Attempt ${getValues("attemptCount") || "?"}` : "First attempt"}
                   </h2>
-                  <p style={{ fontSize: 14, color: MUTED }}>Grounded in ICAI's own material. Built for {watch("name")}.</p>
+                  <p style={{ fontSize: 14, color: C.muted }}>Grounded in ICAI's own material. Built for {getValues("name")}.</p>
                 </div>
-
                 <MarkdownReport text={report} />
-                {isAnalyzing && (
-                  <span style={{ display: "inline-block", width: 2, height: 18, background: AMBER, marginLeft: 4, animation: "blink 0.8s ease-in-out infinite", verticalAlign: "middle" }} />
-                )}
-
+                {isAnalyzing && <span style={{ display: "inline-block", width: 2, height: 18, background: C.amber, marginLeft: 4, animation: "blink 0.8s ease-in-out infinite", verticalAlign: "middle" }} />}
                 {!isAnalyzing && (
-                  <div style={{ marginTop: 48, paddingTop: 32, borderTop: `1px solid ${BORDER}`, display: "flex", gap: 12, flexWrap: "wrap" }}>
-                    <button
-                      onClick={() => { setStep(1); setReport(""); setDiagnosticId(null); }}
-                      className="btn-secondary"
-                    >
-                      New Diagnostic
-                    </button>
-                    <button onClick={() => window.print()} className="btn-primary" style={{ padding: "14px 28px" }}>
-                      Save as PDF →
-                    </button>
+                  <div style={{ marginTop: 48, paddingTop: 32, borderTop: `1px solid ${C.border}`, display: "flex", gap: 12 }}>
+                    <button onClick={() => { setSection(1); setReport(""); setDiagnosticId(null); }} className="btn-secondary">New Diagnostic</button>
+                    <button onClick={() => window.print()} className="btn-primary">Save as PDF →</button>
                   </div>
                 )}
               </div>
             )}
           </div>
+        )}
+
+        {/* ── FORM ────────────────────────────────────────── */}
+        {!isAnalyzing && !report && !error && (
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <ProgressBar current={progressCurrent} total={totalSections} />
+
+            {/* ── SECTION 1: Attempt Profile ── */}
+            {section === 1 && (
+              <div>
+                <SectionHead
+                  eyebrow="Section 1 — Attempt Profile"
+                  title="Tell us about your attempt."
+                  sub="We need a few baseline details before we can diagnose your specific gaps."
+                  time="2 min"
+                />
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px 24px" }} className="form-grid">
+
+                  <Field label="Your full name" span2>
+                    <input {...register("name", { required: true })} placeholder="Bhargavi Sharma" style={inputSx} />
+                  </Field>
+
+                  <Field label="Email address">
+                    <input {...register("email", { required: true })} type="email" placeholder="you@example.com" style={inputSx} />
+                  </Field>
+
+                  <Field label="Daily study hours (be honest — not aspirational)">
+                    <select {...register("studyHours", { required: true })} style={{ ...inputSx, appearance: "none" as const }}>
+                      <option value="">Select...</option>
+                      <option value="Less than 4 hours">Less than 4 hrs</option>
+                      <option value="4–6 hours">4–6 hrs</option>
+                      <option value="6–8 hours">6–8 hrs</option>
+                      <option value="8–10 hours">8–10 hrs</option>
+                      <option value="10+ hours">10+ hrs</option>
+                    </select>
+                  </Field>
+
+                  {/* Q1 — Which group */}
+                  <Field label="Which group are you appearing for next?" span2>
+                    <RadioGroup
+                      options={["Group 1", "Group 2", "Both"]}
+                      value={group || ""}
+                      onChange={v => setValue("group", v as FormData["group"])}
+                    />
+                  </Field>
+
+                  {/* Q2 — First or repeat */}
+                  <Field label="Is this your first attempt or a repeat?" span2>
+                    <RadioGroup
+                      options={["First attempt", "Repeat"]}
+                      value={isRepeat === "yes" ? "Repeat" : isRepeat === "no" ? "First attempt" : ""}
+                      onChange={v => setValue("isRepeat", v === "Repeat" ? "yes" : "no")}
+                    />
+                  </Field>
+
+                  {isRepeat === "yes" && (
+                    <Field label="How many attempts so far?">
+                      <select {...register("attemptCount")} style={{ ...inputSx, appearance: "none" as const }}>
+                        <option value="">Select...</option>
+                        {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}</option>)}
+                      </select>
+                    </Field>
+                  )}
+
+                  {/* Q3 — Target exam date */}
+                  <Field label="Target exam session">
+                    <RadioGroup
+                      options={["May", "November"]}
+                      value={watch("targetSession")}
+                      onChange={v => setValue("targetSession", v)}
+                    />
+                  </Field>
+                  <Field label="Target year">
+                    <select {...register("targetYear", { required: true })} style={{ ...inputSx, appearance: "none" as const }}>
+                      <option value="">Year...</option>
+                      {[2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </Field>
+
+                </div>
+
+                <div style={{ marginTop: 36 }}>
+                  <button
+                    type="button"
+                    onClick={nextSection}
+                    disabled={!canSection1}
+                    className="btn-primary"
+                    style={{ opacity: canSection1 ? 1 : 0.35, cursor: canSection1 ? "pointer" : "not-allowed" }}
+                  >
+                    {isRepeat === "yes" ? "Enter My Scores →" : "Assess My Strengths →"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── SECTION 2: Last Attempt Scores (repeaters only) ── */}
+            {section === 2 && (
+              <div>
+                <SectionHead
+                  eyebrow="Section 2 — Last Attempt Scores"
+                  title="Share your marks from your last attempt."
+                  sub={`CA Final — ${group}. Leave score blank if you didn't appear for a paper.`}
+                  time="3 min"
+                />
+
+                {/* Q5 — Marks per paper */}
+                <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 24 }}>
+                  {papers.map((paper, i) => {
+                    const scoreVal = scores[i]?.score;
+                    const scoreNum = scoreVal ? parseInt(scoreVal) : null;
+                    const pass = scoreNum !== null && scoreNum >= 40;
+                    const exempt = exemptions.includes(paper);
+                    return (
+                      <div key={paper} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: i < papers.length - 1 ? `1px solid ${C.border}` : undefined }}>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: C.charcoal }}>{paper}</div>
+                          <div style={{ fontSize: 11, color: C.muted, fontFamily: "'IBM Plex Mono',monospace", marginTop: 2 }}>out of 100</div>
+                        </div>
+                        <input
+                          value={scores[i]?.score || ""}
+                          onChange={e => {
+                            const s = [...(scores || [])];
+                            s[i] = { subject: paper, score: e.target.value };
+                            setValue("scores", s);
+                          }}
+                          type="number" placeholder="—" min="0" max="100" disabled={exempt}
+                          style={{ width: 72, background: exempt ? C.surface : C.surface, border: `1px solid ${C.border}`, color: C.charcoal, padding: "9px 10px", fontSize: 13, textAlign: "center", outline: "none", borderRadius: 6, fontFamily: "'IBM Plex Mono',monospace", opacity: exempt ? 0.4 : 1 }}
+                        />
+                        {/* Exemption toggle */}
+                        <button type="button"
+                          onClick={() => setValue("exemptions", exempt ? exemptions.filter(x => x !== paper) : [...exemptions, paper])}
+                          style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", padding: "4px 8px", borderRadius: 4, cursor: "pointer", border: `1px solid ${exempt ? "rgba(45,106,79,0.4)" : C.border}`, background: exempt ? "rgba(45,106,79,0.08)" : "transparent", color: exempt ? C.pass : C.muted, letterSpacing: ".04em" }}>
+                          {exempt ? "✓ Exempt" : "Exempt?"}
+                        </button>
+                        {scoreNum !== null && !exempt && (
+                          <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, padding: "4px 8px", borderRadius: 4, color: pass ? C.pass : C.error, background: pass ? C.passBg : "rgba(146,64,14,0.08)", border: `1px solid ${pass ? C.passBorder : "rgba(146,64,14,0.25)"}`, letterSpacing: ".06em" }}>
+                            {pass ? "Pass" : "Fail"}
+                          </div>
+                        )}
+                        {(scoreNum === null || exempt) && <div style={{ width: 52 }} />}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Q7 — Did you attempt all questions */}
+                <Field label="Did you attempt all questions in each paper, or leave any?" span2>
+                  <RadioGroup
+                    options={["Yes — attempted all", "Some — left questions in some papers", "No — left questions in most papers"]}
+                    value={
+                      watch("attemptedAll") === "yes" ? "Yes — attempted all" :
+                      watch("attemptedAll") === "some" ? "Some — left questions in some papers" :
+                      watch("attemptedAll") === "no" ? "No — left questions in most papers" : ""
+                    }
+                    onChange={v =>
+                      setValue("attemptedAll", v.startsWith("Yes") ? "yes" : v.startsWith("Some") ? "some" : "no")
+                    }
+                  />
+                </Field>
+
+                <div style={{ display: "flex", gap: 12, marginTop: 36 }}>
+                  <button type="button" onClick={prevSection} className="btn-secondary">← Back</button>
+                  <button type="button" onClick={nextSection} disabled={!canSection2} className="btn-primary"
+                    style={{ opacity: canSection2 ? 1 : 0.35, cursor: canSection2 ? "pointer" : "not-allowed" }}>
+                    Assess My Strengths →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── SECTION 3: Self-Assessed Weak Areas ── */}
+            {section === 3 && (
+              <div>
+                <SectionHead
+                  eyebrow="Section 3 — Self-Assessed Weak Areas"
+                  title="Be honest about where you stand."
+                  sub="This is the most important section. The AI uses this to identify your exact failure pattern."
+                  time="4 min"
+                />
+
+                {/* Q8 — Confidence per subject */}
+                <div style={{ marginBottom: 28 }}>
+                  <label style={labelSx}>For each subject — rate your confidence</label>
+                  <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
+                    {papers.map((paper, i) => {
+                      const rating = confidenceRatings[i]?.rating || "";
+                      return (
+                        <div key={paper} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 20px", borderBottom: i < papers.length - 1 ? `1px solid ${C.border}` : undefined }}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: C.charcoal, flex: 1 }}>{paper}</div>
+                          <RadioGroup
+                            options={["Strong", "Shaky", "Weak"]}
+                            value={rating}
+                            onChange={v => {
+                              const r = [...confidenceRatings];
+                              r[i] = { subject: paper, rating: v as "Strong" | "Shaky" | "Weak" };
+                              setValue("confidenceRatings", r);
+                            }}
+                            small
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Q9 — Weakest chapters */}
+                <Field label="Within your weakest subject — which specific chapters or standards feel most unclear?" span2>
+                  <textarea
+                    {...register("weakestChapters")}
+                    rows={3}
+                    placeholder="e.g. Ind AS 115 (Revenue), SA 706 (Audit), Section 43B (PGBP)..."
+                    style={{ ...inputSx, resize: "vertical" }}
+                  />
+                </Field>
+
+                {/* Q10 — Struggle type */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={labelSx}>Do you tend to struggle more with:</label>
+                  <RadioGroup
+                    options={["Theory questions", "Practical problems", "Case-study / application questions", "All equally"]}
+                    value={watch("struggleType")}
+                    onChange={v => setValue("struggleType", v)}
+                  />
+                </div>
+
+                {/* Q11 — Time management */}
+                <div style={{ marginBottom: 8 }}>
+                  <label style={labelSx}>In mock tests, do you typically:</label>
+                  <RadioGroup
+                    options={["Run out of time", "Finish with time to spare", "Just about right"]}
+                    value={watch("timeManagement")}
+                    onChange={v => setValue("timeManagement", v)}
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: 12, marginTop: 36 }}>
+                  <button type="button" onClick={prevSection} className="btn-secondary">← Back</button>
+                  <button type="button" onClick={nextSection} disabled={!canSection3} className="btn-primary"
+                    style={{ opacity: canSection3 ? 1 : 0.35, cursor: canSection3 ? "pointer" : "not-allowed" }}>
+                    Study Setup →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── SECTION 4: Study Setup ── */}
+            {section === 4 && (
+              <div>
+                <SectionHead
+                  eyebrow="Section 4 — Study Setup"
+                  title="How have you been preparing?"
+                  sub="Last section. Two minutes, then your diagnostic is ready."
+                  time="2 min"
+                />
+
+                {/* Q12 — Self-study or coaching */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={labelSx}>Are you self-studying, or following a coaching institute's plan?</label>
+                  <RadioGroup
+                    options={["Self-studying", "Following coaching plan", "Mix of both"]}
+                    value={watch("studyMethod")}
+                    onChange={v => setValue("studyMethod", v)}
+                  />
+                </div>
+
+                {/* Q13 — Revision material */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={labelSx}>What revision material do you primarily use?</label>
+                  <MultiCheck
+                    options={["ICAI Study Material", "RTPs", "MTPs", "Coaching notes", "Past papers", "All of the above"]}
+                    value={revisionMaterial}
+                    onChange={v => setValue("revisionMaterial", v)}
+                  />
+                </div>
+
+                {/* Q14 — Main reason */}
+                <Field label="One sentence: what do you feel is the single biggest reason you haven't passed yet?" span2>
+                  <textarea
+                    {...register("mainReason", { required: true })}
+                    rows={3}
+                    placeholder="Be honest — the AI uses this to calibrate your report."
+                    style={{ ...inputSx, resize: "vertical" }}
+                  />
+                </Field>
+
+                <div style={{ display: "flex", gap: 12, marginTop: 36 }}>
+                  <button type="button" onClick={prevSection} className="btn-secondary">← Back</button>
+                  <button type="submit" className="btn-primary" style={{ padding: "14px 36px" }}>
+                    Generate My Diagnostic Report →
+                  </button>
+                </div>
+              </div>
+            )}
+          </form>
         )}
       </div>
 
@@ -421,13 +706,14 @@ export default function DiagnosticPage() {
         .logo-dot { animation: clarixPulse 2.8s ease-in-out infinite; transform-origin: center; }
         @keyframes dotbounce { 0%,100%{transform:translateY(0);opacity:.4} 50%{transform:translateY(-7px);opacity:1} }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-        input::placeholder { color: #9CA3AF; }
-        input:focus, select:focus { border-color: #D4930A !important; }
-        select option { background: #FFFFFF; color: #1C1917; }
+        input::placeholder, textarea::placeholder { color: #9CA3AF; }
+        input:focus, select:focus, textarea:focus { border-color: #D4930A !important; }
+        select option { background:#FFFFFF; color:#1C1917; }
+        textarea { font-family: 'Space Grotesk', sans-serif !important; }
         @media (max-width: 640px) {
           nav { padding: 0 20px !important; }
-          div[style*="max-width: 720px"] { padding-left: 20px !important; padding-right: 20px !important; }
-          div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+          div[style*="max-width: 720px"] { padding: 40px 20px 60px !important; }
+          .form-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>
