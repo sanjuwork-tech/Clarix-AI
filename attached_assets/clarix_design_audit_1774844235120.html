@@ -1,0 +1,319 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.audit{background:#FAF8F4;font-family:'Space Grotesk',sans-serif;color:#1C1917;padding:0 0 24px;}
+.top{padding:14px 24px;background:#fff;border-bottom:1px solid #E7E5E0;display:flex;justify-content:space-between;align-items:center;}
+.tl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#D4930A;letter-spacing:.08em;text-transform:uppercase;}
+.score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin:2px 0;}
+.score-cell{background:#fff;padding:16px 20px;text-align:center;border:1px solid #E7E5E0;}
+.score-num{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:500;line-height:1;}
+.score-lbl{font-size:11px;color:#78716C;margin-top:4px;}
+.s-pass{color:#2D6A4F;}.s-warn{color:#D97706;}.s-fail{color:#92400E;}.s-total{color:#D4930A;}
+
+.section-block{background:#fff;border:1px solid #E7E5E0;margin:2px 20px 0;}
+.sec-hdr{padding:14px 20px;border-bottom:1px solid #E7E5E0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.sec-name{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;}
+.sec-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 9px;border-radius:3px;}
+.b-pass{background:#EBF7F1;color:#1A4731;border:1px solid #B4DEC8;}
+.b-warn{background:#FEF3C7;color:#78350F;border:1px solid #FCD34D;}
+.b-fail{background:#FEE2E2;color:#7F1D1D;border:1px solid #FCA5A5;}
+
+.check-list{padding:12px 20px;}
+.check-item{display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #F5F2EC;}
+.check-item:last-child{border-bottom:none;}
+.ci-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;margin-top:1px;}
+.ic-pass{background:#EBF7F1;color:#1A4731;}
+.ic-warn{background:#FEF3C7;color:#78350F;}
+.ic-fail{background:#FEE2E2;color:#7F1D1D;}
+.ci-text{font-size:13px;color:#1C1917;line-height:1.5;}
+.ci-sub{font-size:12px;color:#78716C;margin-top:3px;line-height:1.5;}
+.ci-ref{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#A8A49D;white-space:nowrap;}
+
+.priority-block{margin:16px 20px 0;background:#fff;border:1px solid #E7E5E0;border-left:3px solid #D4930A;}
+.pb-hdr{padding:12px 16px;border-bottom:1px solid #E7E5E0;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#D4930A;letter-spacing:.08em;text-transform:uppercase;}
+.pb-body{padding:14px 16px;font-size:13px;color:#78716C;line-height:1.65;}
+.pb-item{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #F5F2EC;}
+.pb-item:last-child{border-bottom:none;}
+.pb-n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#D4930A;min-width:20px;padding-top:1px;font-weight:500;}
+.pb-t{font-size:13px;color:#1C1917;line-height:1.5;}
+.pb-s{font-size:12px;color:#78716C;margin-top:2px;}
+</style>
+
+<div class="audit">
+<div class="top">
+  <div class="tl">Clarix design audit — v1 build vs design system</div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#A8A49D;">Section-by-section · 9 areas checked</div>
+</div>
+
+<div class="score-row">
+  <div class="score-cell"><div class="score-num s-pass">11</div><div class="score-lbl">Passing</div></div>
+  <div class="score-cell"><div class="score-num s-warn">8</div><div class="score-lbl">Fix soon</div></div>
+  <div class="score-cell"><div class="score-num s-fail">5</div><div class="score-lbl">Fix now</div></div>
+  <div class="score-cell"><div class="score-num s-total">65%</div><div class="score-lbl">System compliance</div></div>
+</div>
+
+<!-- 1. LOGO & NAV -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">1 — Logo &amp; nav</div>
+    <div class="sec-badge b-warn">Mostly correct · 2 fixes</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">C-mark logo with amber dot is present and correct</div><div class="ci-sub">Arc gap, rounded caps, amber pulse dot — all visible at nav size.</div></div>
+      <div class="ci-ref">§2 logo</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">"Beta — Limited Access" tag in top right uses correct amber styling</div><div class="ci-sub">Mono font, amber color, border — matches tag-amber spec.</div></div>
+      <div class="ci-ref">§6.4 tags</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">Logo dot pulse animation cannot be verified from screenshot</div><div class="ci-sub">Must confirm the 2.8s ease-in-out breathing animation is active in live build. Check browser inspector → animations tab.</div></div>
+      <div class="ci-ref">§7 animation</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">Nav sticky + blur backdrop not verifiable from static image</div><div class="ci-sub">Design system requires position: sticky; backdrop-filter: blur(8px). Test by scrolling — nav should frost, not disappear.</div></div>
+      <div class="ci-ref">§6.5 nav</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. HERO -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">2 — Hero section</div>
+    <div class="sec-badge b-fail">Critical issue · Fix now</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Headline uses italic amber for "exactly" — correct</div><div class="ci-sub">Matches the editorial emphasis pattern from the brand voice.</div></div>
+      <div class="ci-ref">§4 type</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Eyebrow "AI-powered CA Final diagnostics" in mono uppercase — correct</div><div class="ci-sub">Font, case, and amber color all match §4 label spec.</div></div>
+      <div class="ci-ref">§4 t-label</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-fail">✗</div>
+      <div><div class="ci-text">CTA button says "₹499 FREE" — this is a critical pricing contradiction</div><div class="ci-sub">The button simultaneously claims ₹499 and FREE. Crossed-out ₹499 with FREE reads as a gimmick, not a launch offer. The bottom CTA section says "FREE FOR FIRST 50 ASPIRANTS ONLY." Pick one message and commit to it. If it's a free launch offer, the button should say "GET YOUR FREE DIAGNOSTIC →" with small print "First 50 aspirants — normally ₹499." Never put both in the same button.</div></div>
+      <div class="ci-ref">§6.1 btn-primary</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">"See how it works" ghost button correctly styled</div><div class="ci-sub">Muted color, no border, arrow — matches btn-ghost spec.</div></div>
+      <div class="ci-ref">§6.1 btn-ghost</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">Hero headline font appears to be a system/fallback serif, not Space Grotesk 600</div><div class="ci-sub">"Know exactly why you're failing" looks slightly different from Space Grotesk at heading weight. Verify the Google Fonts import is loading before first paint. Check Network tab — look for Space Grotesk in loaded fonts.</div></div>
+      <div class="ci-ref">§4 t-hero</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">staggered fade-up animation on hero content not verifiable</div><div class="ci-sub">Design system requires .animate-in with nth-child delays (0ms, 80ms, 160ms, 240ms). Test by hard-refreshing the page.</div></div>
+      <div class="ci-ref">§7 fadeUp</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. STAT STRIP -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">3 — Stat strip</div>
+    <div class="sec-badge b-warn">Minor issues · 2 fixes</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Three stat cards present with large numerals and muted labels — correct structure</div><div class="ci-sub">Matches card-stat spec: large number, smaller label below.</div></div>
+      <div class="ci-ref">§6.2 card-stat</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-fail">✗</div>
+      <div><div class="ci-text">Third stat card (₹0) has a visibly darker background than the other two</div><div class="ci-sub">All three stat cards should use identical background: --c-surface (#F5F2EC). The third card looks like it may have --c-border (#E7E5E0) or a different shade applied. Make all three identical.</div></div>
+      <div class="ci-ref">§6.2 card-stat</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">Excessive vertical whitespace above stat strip</div><div class="ci-sub">There's a large gap between the hero price note and the stat strip. Design system spacing says 48px section breathing room — this looks like 80–100px. Reduce margin-top on the stat strip.</div></div>
+      <div class="ci-ref">§5 spacing</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. PROBLEM SECTION -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">4 — Problem section</div>
+    <div class="sec-badge b-pass">Good · 1 minor</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Two-column layout: headline left, pain list right — correct structure</div><div class="ci-sub">Matches §9 page structure exactly.</div></div>
+      <div class="ci-ref">§9 layout</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">"enough" in amber italic — correct brand emphasis</div><div class="ci-sub">Amber used once in this section only. Good restraint.</div></div>
+      <div class="ci-ref">§3 color rules</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Pain items numbered 01, 02, 03 in mono — correct</div><div class="ci-sub">IBM Plex Mono for the numbers, correct muted color.</div></div>
+      <div class="ci-ref">§4 mono</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">Massive whitespace gap between problem section and "How it works"</div><div class="ci-sub">There's roughly 120–140px of empty space. Design system caps major section separation at 96px. This gap breaks visual flow and makes the page feel unfinished. Set margin-bottom: 64px on the problem section.</div></div>
+      <div class="ci-ref">§5 spacing 96px max</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. HOW IT WORKS -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">5 — How it works</div>
+    <div class="sec-badge b-pass">Good · 1 check</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Three step cards with STEP 01/02/03 mono labels — correct</div><div class="ci-sub">Amber mono eyebrow, heading, body, amber tag at bottom — structure matches spec.</div></div>
+      <div class="ci-ref">§9 how it works</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">"clear" in amber italic in heading — correct single amber use</div><div class="ci-sub">Only one amber element per viewport rule respected here.</div></div>
+      <div class="ci-ref">§3 color rules</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">Step cards appear borderless — design system requires 1px border</div><div class="ci-sub">Cards should have border: 1px solid var(--c-border) (#E7E5E0). Currently they look like flat color boxes with no defined edge. Add the border — it creates the card container feel from the design system.</div></div>
+      <div class="ci-ref">§6.2 card</div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. TRUST SECTION -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">6 — Trust / why trust this</div>
+    <div class="sec-badge b-pass">Good · 1 check</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">"ICAI's" highlighted in amber — correct brand emphasis</div><div class="ci-sub">Single amber usage in this section. Well placed — the most important word in the trust argument.</div></div>
+      <div class="ci-ref">§3 amber rules</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Credential pills (BCom graduate, CA aspirant, AI researcher) — correct tag styling</div><div class="ci-sub">Mono font, amber-tinted background, correct border. Matches tag-amber spec.</div></div>
+      <div class="ci-ref">§6.4 tags</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Right column bullet list with amber left border accent — correct</div><div class="ci-sub">Matches card-featured spec: border-left: 3px solid var(--c-amber).</div></div>
+      <div class="ci-ref">§6.2 card-featured</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">No honest transparency disclaimer strip with amber border visible</div><div class="ci-sub">The disclaimer text appears as plain small body text below the trust section. Design system requires a distinct styled strip: amber-bordered, visually separated, clearly labelled "Full transparency:". This is also a legal honesty requirement — it must be unmissable, not buried in small print.</div></div>
+      <div class="ci-ref">§9 disclaimer strip</div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. CTA SECTION -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">7 — CTA section</div>
+    <div class="sec-badge b-fail">Critical issue · Fix now</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Section heading "Get your diagnostic report." in correct large serif weight</div><div class="ci-sub">Font size and weight look appropriate for the CTA moment.</div></div>
+      <div class="ci-ref">§4 t-h1</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-fail">✗</div>
+      <div><div class="ci-text">Pricing text "₹499 FOR FIRST 50 ASPIRANTS" contradicts hero button</div><div class="ci-sub">Hero says "₹499 FREE." This section says "₹499 FOR FIRST 50 ASPIRANTS." Bottom button says "₹499 FREE." Three different messages about the same price. A confused student will not convert. Decide: is it free or ₹499? If free launch offer — say it once, clearly, with the reason. If ₹499 — remove all FREE language.</div></div>
+      <div class="ci-ref">Brand voice · clarity</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-fail">✗</div>
+      <div><div class="ci-text">CTA section background appears to be pure white, not parchment</div><div class="ci-sub">Design system rule: NEVER pure white (#FFF) as page background — always parchment (#FAF8F4). The CTA section looks noticeably brighter/whiter than the rest of the page. Set background: var(--c-parchment) on this section.</div></div>
+      <div class="ci-ref">§3 color rules</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. FOOTER -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">8 — Footer</div>
+    <div class="sec-badge b-pass">Good</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">"AI powered · ICAI grounded · Built by a CA aspirant" — correct, honest</div><div class="ci-sub">No false CA claim. Matches the honest brand positioning from v2 landing page.</div></div>
+      <div class="ci-ref">Brand honesty</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-pass">✓</div>
+      <div><div class="ci-text">Footer mono font, muted color, minimal — correct</div><div class="ci-sub">Matches design system footer spec exactly.</div></div>
+      <div class="ci-ref">§9 footer</div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. MISSING ELEMENTS -->
+<div class="section-block">
+  <div class="sec-hdr">
+    <div class="sec-name">9 — Missing from design system</div>
+    <div class="sec-badge b-fail">3 elements absent</div>
+  </div>
+  <div class="check-list">
+    <div class="check-item">
+      <div class="ci-icon ic-fail">✗</div>
+      <div><div class="ci-text">No doodles anywhere on the page</div><div class="ci-sub">Design system §8 specifies CA/AI doodles as section background accents at 4–8% opacity. The ledger book doodle should sit behind the problem section. The neural network doodle behind the "How AI works" trust section. Without them the page feels like every generic SaaS landing. Add at least 2.</div></div>
+      <div class="ci-ref">§8 doodles</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-fail">✗</div>
+      <div><div class="ci-text">No amber underline reveal animation on section headings</div><div class="ci-sub">Design system §7 specifies .heading-underline::after with underlineReveal keyframe on scroll-triggered headings. "The problem" and "How it works" section headings should have this micro-animation on entry.</div></div>
+      <div class="ci-ref">§7 underlineReveal</div>
+    </div>
+    <div class="check-item">
+      <div class="ci-icon ic-warn">!</div>
+      <div><div class="ci-text">Focus states on the CTA button not verifiable</div><div class="ci-sub">Design system requires: outline: 2px solid var(--c-amber); outline-offset: 2px on all interactive elements. Tab through the page to verify.</div></div>
+      <div class="ci-ref">§11 accessibility</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIORITY FIX LIST -->
+<div class="priority-block">
+  <div class="pb-hdr">Fix order — do these today, in this sequence</div>
+  <div class="pb-body">
+    <div class="pb-item"><div class="pb-n">1</div><div><div class="pb-t">Resolve the FREE vs ₹499 contradiction everywhere on the page</div><div class="pb-s">This is actively losing conversions right now. Single message. Commit to it.</div></div></div>
+    <div class="pb-item"><div class="pb-n">2</div><div><div class="pb-t">Fix the CTA section background to parchment #FAF8F4</div><div class="pb-s">One CSS line: background: #FAF8F4 on the CTA section wrapper.</div></div></div>
+    <div class="pb-item"><div class="pb-n">3</div><div><div class="pb-t">Make the transparency disclaimer a styled strip with amber left border</div><div class="pb-s">Currently buried as small text. Needs to be a distinct styled element — it's also a legal safeguard.</div></div></div>
+    <div class="pb-item"><div class="pb-n">4</div><div><div class="pb-t">Fix the third stat card background to match the other two</div><div class="pb-s">All three: background: #F5F2EC. Check for an accidental extra class or inline style on card 3.</div></div></div>
+    <div class="pb-item"><div class="pb-n">5</div><div><div class="pb-t">Reduce the whitespace gaps — problem section and stat strip</div><div class="pb-s">Set consistent margin-bottom: 64px between sections. Max 96px.</div></div></div>
+    <div class="pb-item"><div class="pb-n">6</div><div><div class="pb-n" style="min-width:auto;color:#A8A49D;">then</div><div class="pb-t">Add the two doodles (ledger + neural), verify font loading, add step card borders</div></div></div>
+  </div>
+</div>
+
+</div>
