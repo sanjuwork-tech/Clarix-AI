@@ -62,31 +62,129 @@ type FormData = {
   mainReason: string;
 };
 
+/* ── Markdown helpers ── */
+function isTblRow(line: string) { return line.trim().startsWith("|"); }
+function isTblSep(line: string) { return /^\|[\s\-:|]+\|/.test(line.trim()); }
+function parseCells(line: string) {
+  return line.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+}
+function inlineHtml(text: string) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, `<strong style="color:#1C1917">$1</strong>`)
+    .replace(/\*(.*?)\*/g, `<em>$1</em>`)
+    .replace(/`(.*?)`/g, `<code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:#F5F2EC;padding:1px 5px;border-radius:3px">$1</code>`);
+}
+
+type Block =
+  | { kind: "h2"; text: string }
+  | { kind: "h3"; text: string }
+  | { kind: "li"; text: string }
+  | { kind: "hr" }
+  | { kind: "blank" }
+  | { kind: "p"; text: string }
+  | { kind: "table"; headers: string[]; rows: string[][] };
+
+function parseBlocks(text: string): Block[] {
+  const lines = text.split("\n");
+  const blocks: Block[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (isTblRow(line)) {
+      const tableLines: string[] = [];
+      while (i < lines.length && isTblRow(lines[i])) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      const nonSep = tableLines.filter(l => !isTblSep(l));
+      if (nonSep.length >= 1) {
+        const headers = parseCells(nonSep[0]);
+        const rows = nonSep.slice(1).map(parseCells);
+        blocks.push({ kind: "table", headers, rows });
+      }
+      continue;
+    }
+    if (line.startsWith("## "))       { blocks.push({ kind: "h2", text: line.replace(/^## /, "") }); }
+    else if (line.startsWith("### ")) { blocks.push({ kind: "h3", text: line.replace(/^### /, "") }); }
+    else if (/^[-*] /.test(line))     { blocks.push({ kind: "li", text: line.replace(/^[-*] /, "") }); }
+    else if (/^---+$/.test(line.trim())) { blocks.push({ kind: "hr" }); }
+    else if (line.trim() === "")      { blocks.push({ kind: "blank" }); }
+    else                              { blocks.push({ kind: "p", text: line }); }
+    i++;
+  }
+  return blocks;
+}
+
 /* ── Markdown renderer ── */
 function MarkdownReport({ text }: { text: string }) {
+  const blocks = parseBlocks(text);
   return (
     <div>
-      {text.split("\n").map((line, i) => {
-        if (line.startsWith("## "))
+      {blocks.map((block, i) => {
+        if (block.kind === "h2")
           return (
-            <h3 key={i} style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 20, fontWeight: 600, color: C.charcoal, margin: "32px 0 10px", paddingBottom: 10, borderBottom: `2px solid ${C.border}`, letterSpacing: "-0.01em" }}>
-              {line.replace("## ", "")}
+            <h3 key={i} style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 20, fontWeight: 600, color: C.charcoal, margin: "36px 0 12px", paddingBottom: 10, borderBottom: `2px solid ${C.border}`, letterSpacing: "-0.01em" }}>
+              {block.text}
             </h3>
           );
-        if (line.startsWith("### "))
-          return <h4 key={i} style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 600, color: C.charcoal, margin: "18px 0 5px" }}>{line.replace("### ", "")}</h4>;
-        if (line.startsWith("- ") || line.startsWith("* "))
+        if (block.kind === "h3")
+          return <h4 key={i} style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 600, color: C.charcoal, margin: "18px 0 5px" }}>{block.text}</h4>;
+        if (block.kind === "li")
           return (
             <div key={i} style={{ display: "flex", gap: 10, margin: "5px 0" }}>
               <span style={{ color: C.amber, marginTop: 2, flexShrink: 0 }}>—</span>
-              <span style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}
-                dangerouslySetInnerHTML={{ __html: line.replace(/^[-*] /, "").replace(/\*\*(.*?)\*\*/g, `<strong style="color:${C.charcoal}">$1</strong>`) }} />
+              <span style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: inlineHtml(block.text) }} />
             </div>
           );
-        if (line.trim() === "") return <div key={i} style={{ height: 8 }} />;
+        if (block.kind === "hr")
+          return <div key={i} style={{ height: 1, background: C.border, margin: "20px 0" }} />;
+        if (block.kind === "blank")
+          return <div key={i} style={{ height: 8 }} />;
+        if (block.kind === "table") {
+          const cols = block.headers.length;
+          return (
+            <div key={i} style={{ overflowX: "auto", margin: "20px 0", borderRadius: 10, border: `1px solid ${C.border}` }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, fontFamily: "'Space Grotesk',sans-serif" }}>
+                <thead>
+                  <tr style={{ background: C.surface }}>
+                    {block.headers.map((h, j) => (
+                      <th key={j} style={{
+                        padding: "11px 16px", textAlign: "left",
+                        fontFamily: "'IBM Plex Mono',monospace", fontSize: 10,
+                        color: C.muted, letterSpacing: ".08em", textTransform: "uppercase",
+                        fontWeight: 500, borderBottom: `2px solid ${C.border}`,
+                        whiteSpace: j === 0 ? "nowrap" : undefined,
+                      }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.map((row, ri) => {
+                    const paddedRow = [...row];
+                    while (paddedRow.length < cols) paddedRow.push("");
+                    return (
+                      <tr key={ri} style={{ borderBottom: ri < block.rows.length - 1 ? `1px solid ${C.border}` : undefined, background: ri % 2 === 1 ? "rgba(245,242,236,0.5)" : C.white }}>
+                        {paddedRow.map((cell, ci) => (
+                          <td key={ci} style={{
+                            padding: "12px 16px", verticalAlign: "top",
+                            color: ci === 0 ? C.charcoal : C.muted,
+                            fontWeight: ci === 0 ? 500 : 400,
+                            lineHeight: 1.65, fontSize: 13,
+                          }} dangerouslySetInnerHTML={{ __html: inlineHtml(cell) }} />
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        }
         return (
           <p key={i} style={{ fontSize: 14, color: C.muted, lineHeight: 1.75 }}
-            dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, `<strong style="color:${C.charcoal}">$1</strong>`) }} />
+            dangerouslySetInnerHTML={{ __html: inlineHtml(block.text) }} />
         );
       })}
     </div>

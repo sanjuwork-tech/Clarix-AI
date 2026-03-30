@@ -1,0 +1,63 @@
+CA Final — Group 1 · Attempt 2
+Grounded in ICAI's own material. Built for bhargavi.
+
+## 1. Failure Pattern Summary
+
+Bhargavi’s scores show a classic “partial‑knowledge‑plus‑no‑practice” pattern: she can recall theory (FR = strong confidence) but cannot translate it into the multi‑step calculations that the exam demands. The two failed papers are both “practical‑problem” heavy, and the self‑diagnosed “lack of practice” is confirmed by the fact that she leaves questions unanswered despite finishing the paper early.
+
+---
+
+## 2. Paper‑by‑Paper Diagnosis
+
+| Subject | Score / Confidence | Most Likely Failure Mode* | ICAI Chapter / Standard at Risk |
+
+|---------|-------------------|---------------------------|---------------------------------|
+
+| Financial Reporting (FR) | 50 / 100 – Strong confidence | Application gap – can state provisions but falters on multi‑step Ind‑AS calculations (revenue recognition, lease accounting, deferred tax). | • Ind AS 115 – Revenue from Contracts with Customers (step‑wise allocation, variable consideration)
+• Ind AS 116 – Leases (right‑of‑use asset & liability measurement)
+• Ind AS 12 – Income Taxes (deferred tax asset/liability computation)
+• Ind AS 110 – Consolidated Statements (non‑controlling interest, goodwill impairment) |
+
+| Strategic Financial Management (SFM) | 60 / 100 – Shaky confidence | Application gap – theory of capital budgeting and valuation is known, but numerical execution (WACC, DCF, option‑pricing, merger accounting) is error‑prone. | • Chapter 7 – Capital Budgeting & Project Evaluation (NPV, IRR, MIRR, real options)
+• Chapter 9 – Cost of Capital & WACC (beta‑adjusted, country‑risk premium)
+• Chapter 11 – Valuation of Business & Shares (DDM, FCFF, FCFE)
+• Chapter 13 – Working‑Capital Management & Liquidity Ratios |
+
+| Advanced Auditing & Professional Ethics (A&A) | 20 / 100 – Weak | Recall + Application gap – basic audit standards are fuzzy, and the multi‑step audit‑planning & documentation problems are not attempted. | • SA 200 – Overall Objectives of the Audit (audit plan, risk‑based approach)
+• SA 315 – Identifying and Assessing Risks of Material Misstatement (risk‑assessment matrix)
+• SA 330 – The Auditor’s Responses to Assessed Risks (substantive vs. control testing)
+• SA 500 – Audit Evidence (sampling, reliability)
+• SA 540 – Auditing Accounting Estimates (fair‑value, IAS 36)
+• Professional Ethics – ICAI Code of Ethics (Rule 1‑1 to 1‑8) & IES‑1 (Independence, Integrity) |
+
+| Corporate & Economic Laws (CEL) | 30 / 100 – Weak | Recall + Application gap – memorisation of Companies Act sections is thin, and the “practical‑problem” case‑law questions (e.g., board‑resolution drafting, sanction of loans) are not attempted. | • Companies Act 2013 – Sections 139, 177‑ 180, 184‑ 188, 191‑ 197, 203‑ 206, 211‑ 215, 217‑ 230, 232‑ 236, 239‑ 245, 247‑ 251, 271, 281, 304‑ 307 (appointment of auditors, director duties, related‑party transactions, loans to directors, buy‑back, CSR, insider‑trading)
+• SEBI Act 1992 – Sections 11‑ 15, 27‑ 30 (insider‑trading, take‑over code)
+• FEMA 1999 – Part II (capital account transactions, foreign investment) |
+
+| *Failure mode | | | Recall – inability to retrieve exact statutory language; Application – inability to apply statutes to fact‑patterns; Time‑management – not a problem (finishes early) but Practice‑deficit – leaves questions untouched. |
+
+\*Failure mode is the *dominant* one; a subject may have secondary gaps.
+
+---
+
+## 3. Top 3 Critical Fixes (by impact on clearing the exam)
+
+| Rank | Fix (Exact Topic/Standard) | Why it Moves the Needle |
+
+|------|----------------------------|--------------------------|
+
+| 1 | Master the audit‑planning matrix for SA 200, SA 315, SA 330 – practice at least 30 full‑scale audit‑case questions (risk identification → substantive procedures → sampling). | A&A is the only paper below 40 %; the examiner awards ~30 % of marks for the *audit‑plan* and *risk‑assessment* sections. Closing this gap alone can lift the score to the 60‑70 % range. |
+
+| 2 | Ind AS 115 & 116 calculation drills – 40 timed “revenue‑recognition & lease‑accounting” problems per week, using ICAI RTP FR 2024‑2025. | FR’s 50 % score is held back by multi‑step calculations; the examiner’s 2019‑2023 papers give ~25 % of marks to these standards. Consistent practice will convert “recall” into “application” and add ~15‑20 % marks. |
+
+| 3 | Companies Act 2013 – Sections 139, 180, 184‑ 188, 197, 236, 271, 304‑ 307 case‑law worksheets – 25 “board‑resolution / related‑party” scenarios per week. | CEL’s failure is due to both recall and application; the examiner’s 2022‑2024 papers allocate ~30 % of marks to statutory‑application questions. Focused worksheets raise both recall and speed, adding ~15 % marks. |
+
+---
+
+## 4. 8‑Week Study Plan (4‑6 h / day)
+
+| Week | Daily Hours | Subject Focus (order) | ICAI Materials to Use | What NOT to do |
+
+|------|-------------|-----------------------|-----------------------|----------------|
+
+| 1 | 5 h | FR – Ind AS 115 & 116 (2 h), A&A – SA 200/315
