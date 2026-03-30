@@ -5,8 +5,8 @@ import Navbar from "@/components/Navbar";
 
 /* ── Design tokens ── */
 const MF  = "'IBM Plex Mono',monospace";
-const A   = "#D4930A";   // amber
-const R   = "rgba(146,64,14,0.80)";  // fail red
+const A   = "#7C3F00";   // dark amber — contrast on gold bg
+const R   = "rgba(100,20,0,0.92)";  // deep red — contrast on gold bg
 
 /* ── Page bg doodles ── */
 const LedgerDoodle = () => (
@@ -38,20 +38,20 @@ const NeuralDoodle = () => (
 const SCENE_W = 340;
 const G = 182;        // ground Y
 const SW = 1.5;       // figure stroke width
-// Color progression per scene (0-indexed)
-const SC = ["#1C1917","#1C1917","#4A2800","#2C2C2A","#78716C","#D4930A","#2D6A4F"];
+// Color progression per scene (0-indexed) — all dark enough to show on #FFBF00
+const SC = ["#1C1917","#1C1917","#4A2800","#2C2C2A","#5C5751","#7C3F00","#1A5C3A"];
 
 function JourneyScenes() {
   const [s1, s2, s3, s4, s5, s6, s7] = SC;
-  const P = "#2D6A4F";
+  const P = "#1A5C3A";
 
   return (
     <>
       {/* ── Continuous ground line ── */}
-      <line x1={0} y1={G} x2={2380} y2={G} stroke="#E7E5E0" strokeWidth="1.5" strokeDasharray="6 4"/>
+      <line x1={0} y1={G} x2={2380} y2={G} stroke="rgba(28,25,23,0.35)" strokeWidth="1.5" strokeDasharray="6 4"/>
       {/* Scene separators */}
       {[340,680,1020,1360,1700,2040].map(x=>(
-        <line key={x} x1={x} y1={46} x2={x} y2={208} stroke="#E7E5E0" strokeWidth={0.4} strokeDasharray="3,5" opacity={0.3}/>
+        <line key={x} x1={x} y1={46} x2={x} y2={208} stroke="rgba(28,25,23,0.2)" strokeWidth={0.5} strokeDasharray="3,5"/>
       ))}
 
       {/* ══ SCENE 1 — The Beginning (x: 0-340) ══ */}
@@ -413,8 +413,8 @@ function CAJourneyStrip() {
   const TOTAL_W = SCENE_W * 7; // 2380
   return (
     <section style={{
-      background:"var(--c-parchment)",
-      borderBottom:"1px solid var(--c-border)",
+      background:"#FFBF00",
+      borderBottom:"1px solid rgba(28,25,23,0.18)",
       paddingTop:20,
       overflow:"hidden",
     }}>
@@ -426,19 +426,19 @@ function CAJourneyStrip() {
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <div style={{ width:24, height:1, background:A }}/>
           <span style={{ fontFamily:MF, fontSize:11, letterSpacing:".1em",
-            textTransform:"uppercase", color:"var(--c-muted)" }}>
+            textTransform:"uppercase", color:"rgba(28,25,23,0.75)" }}>
             Every CA aspirant lives this loop
           </span>
         </div>
         {/* Animated scroll indicator */}
         <motion.div
           style={{ display:"flex", alignItems:"center", gap:6,
-            fontFamily:MF, fontSize:10, color:"#A8A49D", letterSpacing:".08em" }}
+            fontFamily:MF, fontSize:10, color:"rgba(28,25,23,0.55)", letterSpacing:".08em" }}
           animate={{ x:[0,6,0] }}
           transition={{ repeat:Infinity, duration:2, ease:"easeInOut" }}>
           <span>scroll</span>
           <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
-            <path d="M0 5 L12 5 M9 2 L12 5 L9 8" stroke="#A8A49D" strokeWidth="1.2" strokeLinecap="round"/>
+            <path d="M0 5 L12 5 M9 2 L12 5 L9 8" stroke="rgba(28,25,23,0.55)" strokeWidth="1.2" strokeLinecap="round"/>
           </svg>
         </motion.div>
       </div>
@@ -468,9 +468,9 @@ function CAJourneyStrip() {
             textAlign:"center",
             fontFamily:MF, fontSize:9.5, letterSpacing:".06em",
             color: color==="amber" ? A
-                 : color==="green" ? "#2D6A4F"
-                 : color==="muted" ? "#A8A49D"
-                 : "var(--c-muted)",
+                 : color==="green" ? "#1A5C3A"
+                 : color==="muted" ? "rgba(28,25,23,0.45)"
+                 : "rgba(28,25,23,0.65)",
             fontWeight: color==="green" ? 600 : 400,
             padding:"4px 2px",
           }}>
