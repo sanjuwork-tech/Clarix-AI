@@ -72,7 +72,6 @@ export default function Home() {
   return (
     <div className="clarix-page" style={{ minHeight: "100vh" }}>
       <Navbar />
-
       {/* ── HERO ───────────────────────────────────────────── */}
       <section style={{ padding: "80px 40px 64px", borderBottom: `1px solid ${border}` }}>
         <div className="animate-in" style={{
@@ -112,7 +111,6 @@ export default function Home() {
           · ICAI-specific, not generic AI
         </p>
       </section>
-
       {/* ── STATS ──────────────────────────────────────────── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderBottom: `1px solid ${border}` }}>
         {[
@@ -133,7 +131,6 @@ export default function Home() {
           </div>
         ))}
       </div>
-
       {/* ── PROBLEM ────────────────────────────────────────── */}
       <div style={{ position: "relative", overflow: "hidden" }}>
         <LedgerDoodle />
@@ -188,7 +185,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
       {/* ── HOW IT WORKS ───────────────────────────────────── */}
       <div ref={howRef} style={{ padding: "64px 40px", borderBottom: `1px solid ${border}`, background: surface }}>
         <span className="section-label">How it works</span>
@@ -226,7 +222,6 @@ export default function Home() {
           ))}
         </div>
       </div>
-
       {/* ── WHY TRUST ──────────────────────────────────────── */}
       <div style={{ position: "relative", overflow: "hidden" }}>
         <NeuralDoodle />
@@ -250,14 +245,7 @@ export default function Home() {
               ))}
             </div>
 
-            <p style={{ fontSize: 15, color: muted, lineHeight: 1.7 }}>
-              Clarix.ai was built by a BCom graduate and CA aspirant who experienced the
-              preparation gap firsthand — and spent months mapping ICAI's exam patterns,
-              past papers, and marking schemes using AI. The diagnostic is grounded entirely
-              in ICAI's published material: study material, RTPs, MTPs, and suggested
-              answers. Not generic AI. Not assumptions. The same sources ICAI uses to set
-              the papers.
-            </p>
+            <p style={{ fontSize: 15, color: muted, lineHeight: 1.7 }}>Clarix.ai was built by a CA aspirant who experienced the preparation gap firsthand — and spent months mapping ICAI's exam patterns, past papers, and marking schemes using AI. The diagnostic is grounded entirely in ICAI's published material: study material, RTPs, MTPs, and suggested answers. Not generic AI. Not assumptions. The same sources ICAI uses to set the papers.</p>
           </div>
 
           <div className="insight-card">
@@ -282,7 +270,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
       {/* ── DISCLAIMER ─────────────────────────────────────── */}
       <div style={{
         margin: "0", padding: "20px 40px",
@@ -307,7 +294,6 @@ export default function Home() {
           Results are study planning recommendations, not guaranteed outcomes.
         </p>
       </div>
-
       {/* ── CTA ────────────────────────────────────────────── */}
       <div ref={ctaRef} style={{ padding: "88px 40px", textAlign: "center", background: parchment }}>
         <div style={{ maxWidth: 520, margin: "0 auto" }}>
@@ -333,7 +319,6 @@ export default function Home() {
           </p>
         </div>
       </div>
-
       {/* ── FOOTER ─────────────────────────────────────────── */}
       <footer style={{
         padding: "22px 40px", borderTop: `1px solid ${border}`,
@@ -344,7 +329,6 @@ export default function Home() {
         <span>© 2025 Clarix.ai</span>
         <span>AI-powered · ICAI-grounded · Built by a CA aspirant</span>
       </footer>
-
       <style>{`
         @media (max-width: 640px) {
           .responsive-two-col { grid-template-columns: 1fr !important; gap: 40px !important; }
