@@ -310,6 +310,8 @@ function Field({ label, children, span2 }: { label: string; children: React.Reac
 }
 
 export default function DiagnosticPage() {
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior }); }, []);
+
   const [section, setSection] = useState(1);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [report, setReport] = useState("");
@@ -521,12 +523,25 @@ export default function DiagnosticPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px 24px" }} className="form-grid">
 
                   <Field label="Your full name" span2>
-                    <input {...register("name", { required: true })} placeholder="Bhargavi Sharma" style={inputSx} />
+                    <input {...register("name", { required: true })} placeholder="Bhargavi" style={inputSx} />
                   </Field>
 
                   <Field label="Email address">
                     <input {...register("email", { required: true })} type="email" placeholder="you@example.com" style={inputSx} />
                   </Field>
+
+                  {/* Privacy note */}
+                  <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "flex-start", gap: 8,
+                    background: "rgba(212,147,10,0.07)", border: "1px solid rgba(212,147,10,0.2)",
+                    borderRadius: 8, padding: "10px 14px" }}>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                      <circle cx="8" cy="8" r="7" stroke="#D4930A" strokeWidth="1.2"/>
+                      <path d="M8 7v4M8 5.5v.5" stroke="#D4930A" strokeWidth="1.3" strokeLinecap="round"/>
+                    </svg>
+                    <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: "#7C3F00", lineHeight: 1.5 }}>
+                      Your data is not stored. It is automatically erased once you download your report.
+                    </span>
+                  </div>
 
                   <Field label="Daily study hours (be honest — not aspirational)">
                     <select {...register("studyHours", { required: true })} style={{ ...inputSx, appearance: "none" as const }}>
