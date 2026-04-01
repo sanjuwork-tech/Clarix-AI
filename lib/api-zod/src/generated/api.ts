@@ -50,6 +50,7 @@ export const AnalyzeDiagnosticBody = zod.object({
   weakAreas: zod.array(zod.string()).optional().default([]),
   studyHours: zod.string().nullable().optional(),
   // Extended intake form fields (v2)
+  scheme: zod.enum(["new", "old"]).optional(),
   group: zod.enum(["Group 1", "Group 2", "Both"]).optional(),
   isRepeat: zod.boolean().optional(),
   attemptCount: zod.number().nullable().optional(),

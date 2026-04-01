@@ -19,42 +19,58 @@ const C = {
   passBorder:"rgba(45,106,79,0.25)",
 };
 
-/* ── CA Final paper lists ── */
-const PAPERS: Record<string, string[]> = {
+/* ── CA Final paper lists — both schemes ── */
+const PAPERS_NEW: Record<string, string[]> = {
+  "Group 1": [
+    "Financial Reporting (FR)",
+    "Advanced Financial Management (AFM)",
+    "Advanced Auditing, Assurance & Professional Ethics (AAP)",
+  ],
+  "Group 2": [
+    "Direct Tax Laws & International Taxation (DT)",
+    "Indirect Tax Laws (IDT)",
+    "Integrated Business Solutions (IBS)",
+  ],
+};
+
+const PAPERS_OLD: Record<string, string[]> = {
   "Group 1": [
     "Financial Reporting (FR)",
     "Strategic Financial Management (SFM)",
-    "Advanced Auditing & Professional Ethics",
-    "Corporate & Economic Laws",
+    "Advanced Auditing, Assurance & Professional Ethics (AAP)",
+    "Corporate & Economic Laws (CL)",
   ],
   "Group 2": [
     "Strategic Cost Management & Performance Evaluation (SCMPE)",
     "Elective Paper",
-    "Direct Tax Laws & International Taxation",
-    "Indirect Tax Laws",
+    "Direct Tax Laws & International Taxation (DT)",
+    "Indirect Tax Laws (IDT)",
   ],
 };
 
-function getPapers(group: string): string[] {
-  if (group === "Both") return [...PAPERS["Group 1"], ...PAPERS["Group 2"]];
-  return PAPERS[group] || [];
+function getPapers(scheme: string, group: string): string[] {
+  const map = scheme === "old" ? PAPERS_OLD : PAPERS_NEW;
+  if (group === "Both") return [...(map["Group 1"] || []), ...(map["Group 2"] || [])];
+  return map[group] || [];
 }
 
 /* ── Form data type ── */
 type ScoreEntry = { subject: string; score: string };
 type ConfidenceEntry = { subject: string; rating: "Strong" | "Shaky" | "Weak" | "" };
 type FormData = {
+  scheme: "new" | "old" | "";
   name: string; email: string;
   group: "Group 1" | "Group 2" | "Both" | "";
   isRepeat: "yes" | "no" | "";
   attemptCount: string;
-  targetSession: string; targetYear: string;
+  targetSession: string;
   studyHours: string;
   scores: ScoreEntry[];
   exemptions: string[];
   attemptedAll: "yes" | "some" | "no" | "";
   confidenceRatings: ConfidenceEntry[];
   weakestChapters: string;
+  ibsMockAttempted: string;
   struggleType: string;
   timeManagement: string;
   studyMethod: string;
@@ -312,7 +328,8 @@ function Field({ label, children, span2 }: { label: string; children: React.Reac
 export default function DiagnosticPage() {
   useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior }); }, []);
 
-  const [section, setSection] = useState(1);
+  /* section 0 = scheme gate; 1-4 = main form sections */
+  const [section, setSection] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [report, setReport] = useState("");
   const [diagnosticId, setDiagnosticId] = useState<number | null>(null);
@@ -320,15 +337,16 @@ export default function DiagnosticPage() {
 
   const { register, watch, setValue, handleSubmit, getValues } = useForm<FormData>({
     defaultValues: {
-      name: "", email: "", group: "", isRepeat: "", attemptCount: "",
-      targetSession: "", targetYear: "", studyHours: "",
+      scheme: "", name: "", email: "", group: "", isRepeat: "", attemptCount: "",
+      targetSession: "", studyHours: "",
       scores: [], exemptions: [], attemptedAll: "",
-      confidenceRatings: [], weakestChapters: "",
+      confidenceRatings: [], weakestChapters: "", ibsMockAttempted: "",
       struggleType: "", timeManagement: "",
       studyMethod: "", revisionMaterial: [], mainReason: "",
     },
   });
 
+  const scheme   = watch("scheme");
   const group    = watch("group");
   const isRepeat = watch("isRepeat");
   const scores   = watch("scores");
@@ -336,14 +354,14 @@ export default function DiagnosticPage() {
   const revisionMaterial = watch("revisionMaterial");
   const confidenceRatings = watch("confidenceRatings");
 
-  /* Sync papers and confidence slots when group changes */
+  /* Sync papers and confidence slots when scheme or group changes */
   useEffect(() => {
-    if (!group) return;
-    const papers = getPapers(group);
+    if (!group || !scheme) return;
+    const papers = getPapers(scheme, group);
     setValue("scores", papers.map(p => ({ subject: p, score: "" })));
     setValue("confidenceRatings", papers.map(p => ({ subject: p, rating: "" })));
     setValue("exemptions", []);
-  }, [group, setValue]);
+  }, [scheme, group, setValue]);
 
   const totalSections = isRepeat === "yes" ? 4 : 3;
   /* Section 2 only exists for repeaters; jump S1→S3 for first-timers */
@@ -356,13 +374,15 @@ export default function DiagnosticPage() {
     else setSection(s => s - 1);
   };
 
-  /* For progress display, normalise section to 1-totalSections */
+  /* For progress display, normalise section to 1-totalSections (section 0 not counted) */
   const progressCurrent = isRepeat !== "yes" && section >= 3 ? section - 1 : section;
+
+  const canSection0 = !!scheme;
 
   const canSection1 =
     watch("name").trim() && watch("email").trim() &&
     group && isRepeat &&
-    watch("targetSession") && watch("targetYear") && watch("studyHours");
+    watch("targetSession") && watch("studyHours");
 
   const canSection2 = watch("attemptedAll");
 
@@ -372,18 +392,19 @@ export default function DiagnosticPage() {
 
   const onSubmit = async (data: FormData) => {
     setIsAnalyzing(true); setReport(""); setError("");
-    const papers = getPapers(data.group || "");
+    const papers = getPapers(data.scheme || "new", data.group || "");
     try {
       const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
       const body = {
         name: data.name,
         email: data.email,
-        examLevel: `CA Final — ${data.group}`,
+        examLevel: `CA Final — ${data.group} (${data.scheme === "old" ? "Old Scheme" : "New Scheme 2023"})`,
         attemptNumber: parseInt(data.attemptCount) || 1,
+        scheme: data.scheme as "new" | "old",
         group: data.group,
         isRepeat: data.isRepeat === "yes",
         attemptCount: parseInt(data.attemptCount) || null,
-        targetDate: `${data.targetSession} ${data.targetYear}`,
+        targetDate: data.targetSession,
         studyHours: data.studyHours,
         subjects: papers.map((p, i) => ({
           subject: p,
@@ -430,7 +451,7 @@ export default function DiagnosticPage() {
     }
   };
 
-  const papers = group ? getPapers(group) : [];
+  const papers = (scheme && group) ? getPapers(scheme, group) : [];
 
   return (
     <div style={{ background: C.parchment, minHeight: "100vh", color: C.charcoal, fontFamily: "'Space Grotesk',sans-serif" }}>
@@ -477,7 +498,7 @@ export default function DiagnosticPage() {
               <div style={{ background: "rgba(146,64,14,0.06)", border: `1px solid rgba(146,64,14,0.2)`, padding: 32, borderRadius: 12, textAlign: "center" }}>
                 <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 600, color: C.charcoal, marginBottom: 8 }}>Analysis failed</div>
                 <p style={{ fontSize: 14, color: C.muted, marginBottom: 24 }}>{error}</p>
-                <button onClick={() => { setError(""); setSection(1); }} className="btn-primary">Try Again</button>
+                <button onClick={() => { setError(""); setSection(0); }} className="btn-primary">Try Again</button>
               </div>
             )}
 
@@ -496,7 +517,7 @@ export default function DiagnosticPage() {
                 {isAnalyzing && <span style={{ display: "inline-block", width: 2, height: 18, background: C.amber, marginLeft: 4, animation: "blink 0.8s ease-in-out infinite", verticalAlign: "middle" }} />}
                 {!isAnalyzing && (
                   <div style={{ marginTop: 48, paddingTop: 32, borderTop: `1px solid ${C.border}`, display: "flex", gap: 12 }}>
-                    <button onClick={() => { setSection(1); setReport(""); setDiagnosticId(null); }} className="btn-secondary">New Diagnostic</button>
+                    <button onClick={() => { setSection(0); setReport(""); setDiagnosticId(null); }} className="btn-secondary">New Diagnostic</button>
                     <button onClick={() => window.print()} className="btn-primary">Save as PDF →</button>
                   </div>
                 )}
@@ -508,13 +529,89 @@ export default function DiagnosticPage() {
         {/* ── FORM ────────────────────────────────────────── */}
         {!isAnalyzing && !report && !error && (
           <form onSubmit={handleSubmit(onSubmit)}>
-            <ProgressBar current={progressCurrent} total={totalSections} />
+
+            {/* Only show progress bar from section 1 onwards */}
+            {section >= 1 && <ProgressBar current={progressCurrent} total={totalSections} />}
+
+            {/* ── SECTION 0: Scheme Selector (gate before form) ── */}
+            {section === 0 && (
+              <div>
+                <SectionHead
+                  eyebrow="Before we begin"
+                  title="Which ICAI CA Final scheme are you registered under?"
+                  sub="This determines the paper structure of your entire diagnostic."
+                  time="30 sec"
+                />
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 32 }}>
+                  {/* New Scheme option */}
+                  <button type="button"
+                    onClick={() => setValue("scheme", "new")}
+                    style={{
+                      textAlign: "left", padding: "18px 22px", borderRadius: 10, cursor: "pointer",
+                      border: `2px solid ${scheme === "new" ? C.amber : C.border}`,
+                      background: scheme === "new" ? "rgba(212,147,10,0.06)" : C.white,
+                      transition: "all .15s",
+                    }}>
+                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 600, color: C.charcoal, marginBottom: 4 }}>
+                      New Scheme (2023)
+                    </div>
+                    <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: C.muted, lineHeight: 1.55 }}>
+                      Registered after July 2023 · First exam from May 2024 onwards<br/>
+                      6 papers · 600 marks · Papers: FR, AFM, AAP, DT, IDT, IBS
+                    </div>
+                  </button>
+
+                  {/* Old Scheme option */}
+                  <button type="button"
+                    onClick={() => setValue("scheme", "old")}
+                    style={{
+                      textAlign: "left", padding: "18px 22px", borderRadius: 10, cursor: "pointer",
+                      border: `2px solid ${scheme === "old" ? C.amber : C.border}`,
+                      background: scheme === "old" ? "rgba(212,147,10,0.06)" : C.white,
+                      transition: "all .15s",
+                    }}>
+                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 600, color: C.charcoal, marginBottom: 4 }}>
+                      Old Scheme
+                    </div>
+                    <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: C.muted, lineHeight: 1.55 }}>
+                      Registered before July 2023 · Under the pre-2023 syllabus<br/>
+                      8 papers · 800 marks · Papers: FR, SFM, AAP, CL, SCMPE, Elective, DT, IDT
+                    </div>
+                  </button>
+                </div>
+
+                {/* Helper note */}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 8,
+                  background: "rgba(212,147,10,0.06)", border: "1px solid rgba(212,147,10,0.18)",
+                  borderRadius: 8, padding: "10px 14px", marginBottom: 32 }}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                    <circle cx="8" cy="8" r="7" stroke="#D4930A" strokeWidth="1.2"/>
+                    <path d="M8 7v4M8 5.5v.5" stroke="#D4930A" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: "#7C3F00", lineHeight: 1.55 }}>
+                    Not sure? Check your ICAI registration letter or log in to the Students' Portal at icai.org.
+                    If your first CA Final exam was in May 2024 or later, you are on the New Scheme.
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSection(1)}
+                  disabled={!canSection0}
+                  className="btn-primary"
+                  style={{ opacity: canSection0 ? 1 : 0.35, cursor: canSection0 ? "pointer" : "not-allowed" }}
+                >
+                  Continue →
+                </button>
+              </div>
+            )}
 
             {/* ── SECTION 1: Attempt Profile ── */}
             {section === 1 && (
               <div>
                 <SectionHead
-                  eyebrow="Section 1 — Attempt Profile"
+                  eyebrow={`Section 1 — Attempt Profile · ${scheme === "old" ? "Old Scheme" : "New Scheme 2023"}`}
                   title="Tell us about your attempt."
                   sub="We need a few baseline details before we can diagnose your specific gaps."
                   time="2 min"
@@ -581,24 +678,19 @@ export default function DiagnosticPage() {
                     </Field>
                   )}
 
-                  {/* Q3 — Target exam date */}
-                  <Field label="Target exam session">
+                  {/* Q3 — Next exam session (combined) */}
+                  <Field label="Next exam session" span2>
                     <RadioGroup
-                      options={["May", "November"]}
+                      options={["May 2026", "November 2026", "May 2027", "November 2027"]}
                       value={watch("targetSession")}
                       onChange={v => setValue("targetSession", v)}
                     />
                   </Field>
-                  <Field label="Target year">
-                    <select {...register("targetYear", { required: true })} style={{ ...inputSx, appearance: "none" as const }}>
-                      <option value="">Year...</option>
-                      {[2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
-                    </select>
-                  </Field>
 
                 </div>
 
-                <div style={{ marginTop: 36 }}>
+                <div style={{ display: "flex", gap: 12, marginTop: 36 }}>
+                  <button type="button" onClick={() => setSection(0)} className="btn-secondary">← Back</button>
                   <button
                     type="button"
                     onClick={nextSection}
@@ -618,48 +710,75 @@ export default function DiagnosticPage() {
                 <SectionHead
                   eyebrow="Section 2 — Last Attempt Scores"
                   title="Share your marks from your last attempt."
-                  sub={`CA Final — ${group}. Leave score blank if you didn't appear for a paper.`}
+                  sub={`CA Final — ${group} · ${scheme === "old" ? "Old Scheme (8 papers)" : "New Scheme 2023 (6 papers)"}. Leave score blank if you didn't appear for a paper.`}
                   time="3 min"
                 />
 
                 {/* Q5 — Marks per paper */}
-                <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 24 }}>
+                <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 16 }}>
                   {papers.map((paper, i) => {
                     const scoreVal = scores[i]?.score;
                     const scoreNum = scoreVal ? parseInt(scoreVal) : null;
                     const pass = scoreNum !== null && scoreNum >= 40;
                     const exempt = exemptions.includes(paper);
+                    const isIBS = paper.includes("IBS");
                     return (
-                      <div key={paper} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: i < papers.length - 1 ? `1px solid ${C.border}` : undefined }}>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 500, color: C.charcoal }}>{paper}</div>
-                          <div style={{ fontSize: 11, color: C.muted, fontFamily: "'IBM Plex Mono',monospace", marginTop: 2 }}>out of 100</div>
+                      <div key={paper}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", alignItems: "center", gap: 12, padding: "14px 20px", borderBottom: i < papers.length - 1 && !isIBS ? `1px solid ${C.border}` : undefined }}>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 500, color: C.charcoal }}>{paper}</div>
+                            <div style={{ fontSize: 11, color: C.muted, fontFamily: "'IBM Plex Mono',monospace", marginTop: 2 }}>
+                              {isIBS ? "out of 100 · Open-book · 4 hrs" : "out of 100"}
+                            </div>
+                          </div>
+                          <input
+                            value={scores[i]?.score || ""}
+                            onChange={e => {
+                              const s = [...(scores || [])];
+                              s[i] = { subject: paper, score: e.target.value };
+                              setValue("scores", s);
+                            }}
+                            type="number" placeholder="—" min="0" max="100" disabled={exempt}
+                            style={{ width: 72, background: C.surface, border: `1px solid ${C.border}`, color: C.charcoal, padding: "9px 10px", fontSize: 13, textAlign: "center", outline: "none", borderRadius: 6, fontFamily: "'IBM Plex Mono',monospace", opacity: exempt ? 0.4 : 1 }}
+                          />
+                          {/* Exemption toggle */}
+                          <button type="button"
+                            onClick={() => setValue("exemptions", exempt ? exemptions.filter(x => x !== paper) : [...exemptions, paper])}
+                            style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", padding: "4px 8px", borderRadius: 4, cursor: "pointer", border: `1px solid ${exempt ? "rgba(45,106,79,0.4)" : C.border}`, background: exempt ? "rgba(45,106,79,0.08)" : "transparent", color: exempt ? C.pass : C.muted, letterSpacing: ".04em" }}>
+                            {exempt ? "✓ Exempt" : "Exempt?"}
+                          </button>
+                          {scoreNum !== null && !exempt && (
+                            <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, padding: "4px 8px", borderRadius: 4, color: pass ? C.pass : C.error, background: pass ? C.passBg : "rgba(146,64,14,0.08)", border: `1px solid ${pass ? C.passBorder : "rgba(146,64,14,0.25)"}`, letterSpacing: ".06em" }}>
+                              {pass ? "Pass" : "Fail"}
+                            </div>
+                          )}
+                          {(scoreNum === null || exempt) && <div style={{ width: 52 }} />}
                         </div>
-                        <input
-                          value={scores[i]?.score || ""}
-                          onChange={e => {
-                            const s = [...(scores || [])];
-                            s[i] = { subject: paper, score: e.target.value };
-                            setValue("scores", s);
-                          }}
-                          type="number" placeholder="—" min="0" max="100" disabled={exempt}
-                          style={{ width: 72, background: exempt ? C.surface : C.surface, border: `1px solid ${C.border}`, color: C.charcoal, padding: "9px 10px", fontSize: 13, textAlign: "center", outline: "none", borderRadius: 6, fontFamily: "'IBM Plex Mono',monospace", opacity: exempt ? 0.4 : 1 }}
-                        />
-                        {/* Exemption toggle */}
-                        <button type="button"
-                          onClick={() => setValue("exemptions", exempt ? exemptions.filter(x => x !== paper) : [...exemptions, paper])}
-                          style={{ fontSize: 10, fontFamily: "'IBM Plex Mono',monospace", padding: "4px 8px", borderRadius: 4, cursor: "pointer", border: `1px solid ${exempt ? "rgba(45,106,79,0.4)" : C.border}`, background: exempt ? "rgba(45,106,79,0.08)" : "transparent", color: exempt ? C.pass : C.muted, letterSpacing: ".04em" }}>
-                          {exempt ? "✓ Exempt" : "Exempt?"}
-                        </button>
-                        {scoreNum !== null && !exempt && (
-                          <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, padding: "4px 8px", borderRadius: 4, color: pass ? C.pass : C.error, background: pass ? C.passBg : "rgba(146,64,14,0.08)", border: `1px solid ${pass ? C.passBorder : "rgba(146,64,14,0.25)"}`, letterSpacing: ".06em" }}>
-                            {pass ? "Pass" : "Fail"}
+                        {/* IBS-specific helper */}
+                        {isIBS && (
+                          <div style={{ background: "rgba(212,147,10,0.04)", borderTop: `1px solid ${C.border}`, borderBottom: i < papers.length - 1 ? `1px solid ${C.border}` : undefined, padding: "8px 20px" }}>
+                            <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.muted }}>
+                              IBS is open-book (4 hrs) — 5 case studies × 25 marks, attempt any 4. If this was your first attempt and you haven't appeared yet, leave blank.
+                            </span>
                           </div>
                         )}
-                        {(scoreNum === null || exempt) && <div style={{ width: 52 }} />}
                       </div>
                     );
                   })}
+                </div>
+
+                {/* Passing criteria helper */}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 8,
+                  background: "rgba(26,71,49,0.05)", border: "1px solid rgba(26,71,49,0.18)",
+                  borderRadius: 8, padding: "10px 14px", marginBottom: 24 }}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                    <circle cx="8" cy="8" r="7" stroke="#1A4731" strokeWidth="1.2"/>
+                    <path d="M5 8l2 2 4-4" stroke="#1A4731" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: "#1A4731", lineHeight: 1.55 }}>
+                    Passing criteria: Minimum 40 marks in each paper + minimum 50% aggregate in your group (min 150/300).
+                    {scheme === "new" && " Exemption: Score 60+ in any paper = permanently exempted from that paper."}
+                  </span>
                 </div>
 
                 {/* Q7 — Did you attempt all questions */}
@@ -703,40 +822,68 @@ export default function DiagnosticPage() {
                   <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
                     {papers.map((paper, i) => {
                       const rating = confidenceRatings[i]?.rating || "";
+                      const isIBS = paper.includes("IBS");
                       return (
-                        <div key={paper} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 20px", borderBottom: i < papers.length - 1 ? `1px solid ${C.border}` : undefined }}>
-                          <div style={{ fontSize: 13, fontWeight: 500, color: C.charcoal, flex: 1 }}>{paper}</div>
-                          <RadioGroup
-                            options={["Strong", "Shaky", "Weak"]}
-                            value={rating}
-                            onChange={v => {
-                              const r = [...confidenceRatings];
-                              r[i] = { subject: paper, rating: v as "Strong" | "Shaky" | "Weak" };
-                              setValue("confidenceRatings", r);
-                            }}
-                            small
-                          />
+                        <div key={paper}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 20px", borderBottom: i < papers.length - 1 && !isIBS ? `1px solid ${C.border}` : undefined }}>
+                            <div style={{ fontSize: 13, fontWeight: 500, color: C.charcoal, flex: 1 }}>{paper}</div>
+                            <RadioGroup
+                              options={["Strong", "Shaky", "Weak"]}
+                              value={rating}
+                              onChange={v => {
+                                const r = [...confidenceRatings];
+                                r[i] = { subject: paper, rating: v as "Strong" | "Shaky" | "Weak" };
+                                setValue("confidenceRatings", r);
+                              }}
+                              small
+                            />
+                          </div>
+                          {isIBS && (
+                            <div style={{ background: "rgba(212,147,10,0.04)", borderTop: `1px solid ${C.border}`, borderBottom: i < papers.length - 1 ? `1px solid ${C.border}` : undefined, padding: "6px 20px" }}>
+                              <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.muted }}>
+                                IBS: Rate your confidence in applying concepts across subjects in a case-study format.
+                              </span>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
+                {/* IBS Mock Test question — New Scheme only */}
+                {scheme === "new" && (papers.some(p => p.includes("IBS"))) && (
+                  <div style={{ marginBottom: 24 }}>
+                    <label style={labelSx}>For IBS (Paper 6) — Have you attempted any IBS Mock Test Papers from ICAI?</label>
+                    <RadioGroup
+                      options={["Yes — attempted at least one", "No — haven't started yet"]}
+                      value={watch("ibsMockAttempted")}
+                      onChange={v => setValue("ibsMockAttempted", v)}
+                    />
+                  </div>
+                )}
+
                 {/* Q9 — Weakest chapters */}
                 <Field label="Within your weakest subject — which specific chapters or standards feel most unclear?" span2>
                   <textarea
                     {...register("weakestChapters")}
                     rows={3}
-                    placeholder="e.g. Ind AS 115 (Revenue), SA 706 (Audit), Section 43B (PGBP)..."
+                    placeholder="e.g. Ind AS 2 (Inventories), SA 560 (Subsequent Events), Section 43B (PGBP)..."
                     style={{ ...inputSx, resize: "vertical" }}
                   />
                 </Field>
 
-                {/* Q10 — Struggle type */}
+                {/* Q10 — Struggle type (updated options) */}
                 <div style={{ marginBottom: 24 }}>
                   <label style={labelSx}>Do you tend to struggle more with:</label>
                   <RadioGroup
-                    options={["Theory questions", "Practical problems", "Case-study / application questions", "All equally"]}
+                    options={[
+                      "Theory recall — I know the concepts but forget under exam pressure",
+                      "Practical/numerical problems — calculations trip me up",
+                      "Application/case study questions — I struggle to apply theory to scenarios",
+                      ...(scheme === "new" ? ["IBS (Paper 6) integrated case studies — connecting multiple subjects"] : []),
+                      "All equally",
+                    ]}
                     value={watch("struggleType")}
                     onChange={v => setValue("struggleType", v)}
                   />
