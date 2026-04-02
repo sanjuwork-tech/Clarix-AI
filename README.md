@@ -22,49 +22,46 @@
 ## 📁 Project Structure
 
 ```
-CA-AI-Integration/
-└── artifacts/
-    └── ca-ai-brand/           ← Main application
-        ├── api/
-        │   └── diagnostic/
-        │       └── analyze.ts ← Vercel Edge Function (Mercury 2 AI)
-        ├── public/
-        │   ├── favicon.svg    ← Clarix.AI logo
-        │   └── opengraph.jpg  ← OG image
-        ├── src/
-        │   ├── App.tsx
-        │   ├── main.tsx
-        │   ├── index.css      ← Design system
-        │   ├── pages/
-        │   │   ├── home.tsx         ← Brand landing page
-        │   │   ├── diagnostic.tsx   ← Multi-step diagnostic form + AI report
-        │   │   └── not-found.tsx
-        │   ├── components/
-        │   │   ├── Navbar.tsx
-        │   │   └── ui/
-        │   ├── hooks/
-        │   └── lib/
-        ├── index.html
-        ├── vite.config.ts
-        ├── vercel.json
-        └── package.json
+Clarix-AI/
+├── api/
+│   └── diagnostic/
+│       └── analyze.ts     ← Vercel Edge Function (Mercury 2 AI)
+├── public/
+│   ├── favicon.svg        ← Clarix.AI logo
+│   └── opengraph.jpg      ← OG image
+├── src/
+│   ├── App.tsx
+│   ├── main.tsx
+│   ├── index.css           ← Design system
+│   ├── pages/
+│   │   ├── home.tsx              ← Brand landing page
+│   │   ├── diagnostic.tsx        ← Multi-step diagnostic form + AI report
+│   │   └── not-found.tsx
+│   ├── components/
+│   │   ├── Navbar.tsx
+│   │   └── ui/
+│   ├── hooks/
+│   └── lib/
+├── index.html
+├── vite.config.ts
+├── vercel.json
+└── package.json
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
-- npm or pnpm
+- npm
 
 ### Local Development
 
 ```bash
-cd artifacts/ca-ai-brand
 npm install
 npm run dev
 ```
 
-> **Note:** The AI diagnostic requires the Mercury 2 API key. For local testing:
+> **Note:** The AI diagnostic requires the Mercury 2 API key. For local testing with the serverless function:
 > 1. Copy `.env.example` to `.env`
 > 2. Add your `INCEPTION_API_KEY`
 > 3. Use `vercel dev` to run both frontend and serverless functions locally
@@ -85,21 +82,15 @@ npm run preview
 ### 1. Import Repository
 Go to [vercel.com](https://vercel.com) → New Project → Import your GitHub repo
 
-### 2. Configure Settings
-- **Root Directory:** `artifacts/ca-ai-brand`
-- **Framework Preset:** Vite (auto-detected)
-- **Build Command:** `vite build`
-- **Output Directory:** `dist/public`
-
-### 3. Environment Variables
+### 2. Environment Variables
 Add in Vercel Dashboard → Settings → Environment Variables:
 
 | Variable | Value | Description |
 |----------|-------|-------------|
 | `INCEPTION_API_KEY` | `sk_...` | Mercury 2 API key from Inception Labs |
 
-### 4. Deploy
-Click Deploy — Vercel will build the frontend and deploy the Edge Function for `/api/diagnostic/analyze`.
+### 3. Deploy
+Click Deploy — Vercel will auto-detect Vite, build the frontend, and deploy the Edge Function at `/api/diagnostic/analyze`.
 
 ## 🎨 Design System
 
