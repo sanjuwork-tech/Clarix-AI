@@ -422,13 +422,50 @@ export default function DiagnosticPage() {
         mainReason: data.mainReason,
       };
 
-      /* Fire-and-forget: send form data to owner's email via EmailJS */
+      /* ── EmailJS: Send data to ADMIN (you) ── */
+      const formSummary = [
+        `Name: ${data.name}`,
+        `Email: ${data.email}`,
+        `Scheme: ${data.scheme === "old" ? "Old Scheme" : "New Scheme 2023"}`,
+        `Group: ${data.group}`,
+        `Target Session: ${data.targetSession}`,
+        `Study Hours: ${data.studyHours}`,
+        `Attempt: ${data.isRepeat === "yes" ? `Repeat #${data.attemptCount}` : "First attempt"}`,
+        ``,
+        `--- Scores ---`,
+        ...papers.map((p, i) => `${p}: ${data.scores[i]?.score || "N/A"}/100`),
+        `Exemptions: ${data.exemptions?.length ? data.exemptions.join(", ") : "None"}`,
+        `Attempted All: ${data.attemptedAll}`,
+        ``,
+        `--- Self Assessment ---`,
+        ...data.confidenceRatings.map(r => `${r.subject}: ${r.rating}`),
+        `Weakest Chapters: ${data.weakestChapters || "Not specified"}`,
+        `Struggle Type: ${data.struggleType}`,
+        `Time Management: ${data.timeManagement}`,
+        ``,
+        `--- Study Setup ---`,
+        `Study Method: ${data.studyMethod}`,
+        `Revision Material: ${data.revisionMaterial?.join(", ") || "Not specified"}`,
+        `Main Reason for Not Passing: ${data.mainReason}`,
+      ].join("\n");
+
       emailjs.send("service_q56a8pl", "template_otko2xb", {
+        to_email: "sanjureddywork@gmail.com",
         from_name: data.name,
         from_email: data.email,
-        subject: `CA Diagnostic — ${data.name} (${data.group}, ${data.scheme === "old" ? "Old" : "New"} Scheme)`,
-        message: `Name: ${data.name}\nEmail: ${data.email}\nScheme: ${data.scheme}\nGroup: ${data.group}\nTarget: ${data.targetSession}\nStudy Hours: ${data.studyHours}\nAttempt: ${data.isRepeat === "yes" ? `Repeat #${data.attemptCount}` : "First"}\nStruggle: ${data.struggleType}\nTime Mgmt: ${data.timeManagement}\nStudy Method: ${data.studyMethod}\nMain Reason: ${data.mainReason}`,
-      }, "fCEL09zuXQVmuX5ri").catch(() => { /* silent — email is backup only */ });
+        subject: `[ADMIN] New Diagnostic — ${data.name} (${data.group}, ${data.scheme === "old" ? "Old" : "New"} Scheme)`,
+        message: formSummary,
+      }, "fCEL09zuXQVmuX5ri").catch(() => {});
+
+      /* ── EmailJS: Send confirmation to USER ── */
+      emailjs.send("service_q56a8pl", "template_otko2xb", {
+        to_email: data.email,
+        from_name: "Clarix.AI",
+        from_email: "sanjureddywork@gmail.com",
+        subject: `Your CA Final Diagnostic — Clarix.AI`,
+        message: `Hi ${data.name},\n\nThank you for using Clarix.AI! We have received your CA Final diagnostic submission.\n\nYour AI-generated diagnostic report is being prepared based on your profile:\n• Scheme: ${data.scheme === "old" ? "Old Scheme" : "New Scheme 2023"}\n• Group: ${data.group}\n• Target: ${data.targetSession}\n\nYour real-time report should be visible on screen. You can save it as PDF using the button below the report.\n\nAll the best for your CA Final journey!\n\nWarm regards,\nClarix.AI Team`,
+      }, "fCEL09zuXQVmuX5ri").catch(() => {});
+
 
       /* Call Mercury 2 AI via serverless function */
       const res = await fetch("/api/diagnostic/analyze", {
