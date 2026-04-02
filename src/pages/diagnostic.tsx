@@ -435,7 +435,10 @@ export default function DiagnosticPage() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error("Analysis failed. Please try again.");
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({ error: "Analysis failed" }));
+        throw new Error(errBody.error || errBody.details || "Analysis failed. Please try again.");
+      }
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let buf = "";

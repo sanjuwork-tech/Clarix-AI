@@ -193,7 +193,7 @@ export default async function handler(request: Request): Promise<Response> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "mercury-coder-small-beta",
+        model: "mercury-2",
         max_tokens: 3500,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
