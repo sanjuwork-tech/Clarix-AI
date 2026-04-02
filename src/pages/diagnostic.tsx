@@ -449,7 +449,7 @@ export default function DiagnosticPage() {
         `Main Reason for Not Passing: ${data.mainReason}`,
       ].join("\n");
 
-      emailjs.send("service_q56a8pl", "template_otko2xb", {
+      emailjs.send("service_q56a8pl", "template_is6egpn", {
         to_email: "sanjureddywork@gmail.com",
         from_name: data.name,
         from_email: data.email,
@@ -458,7 +458,7 @@ export default function DiagnosticPage() {
       }, "fCEL09zuXQVmuX5ri").catch(() => {});
 
       /* ── EmailJS: Send confirmation to USER ── */
-      emailjs.send("service_q56a8pl", "template_otko2xb", {
+      emailjs.send("service_q56a8pl", "template_is6egpn", {
         to_email: data.email,
         from_name: "Clarix.AI",
         from_email: "sanjureddywork@gmail.com",
