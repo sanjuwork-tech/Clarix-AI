@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "wouter";
+import emailjs from "@emailjs/browser";
 
 /* ── Design tokens ── */
 const C = {
@@ -332,7 +333,6 @@ export default function DiagnosticPage() {
   const [section, setSection] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [report, setReport] = useState("");
-  const [diagnosticId, setDiagnosticId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   const { register, watch, setValue, handleSubmit, getValues } = useForm<FormData>({
@@ -394,7 +394,6 @@ export default function DiagnosticPage() {
     setIsAnalyzing(true); setReport(""); setError("");
     const papers = getPapers(data.scheme || "new", data.group || "");
     try {
-      const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
       const body = {
         name: data.name,
         email: data.email,
@@ -422,7 +421,17 @@ export default function DiagnosticPage() {
         revisionMaterial: data.revisionMaterial,
         mainReason: data.mainReason,
       };
-      const res = await fetch(`${BASE}/api/diagnostic/analyze`, {
+
+      /* Fire-and-forget: send form data to owner's email via EmailJS */
+      emailjs.send("service_q56a8pl", "template_otko2xb", {
+        from_name: data.name,
+        from_email: data.email,
+        subject: `CA Diagnostic — ${data.name} (${data.group}, ${data.scheme === "old" ? "Old" : "New"} Scheme)`,
+        message: `Name: ${data.name}\nEmail: ${data.email}\nScheme: ${data.scheme}\nGroup: ${data.group}\nTarget: ${data.targetSession}\nStudy Hours: ${data.studyHours}\nAttempt: ${data.isRepeat === "yes" ? `Repeat #${data.attemptCount}` : "First"}\nStruggle: ${data.struggleType}\nTime Mgmt: ${data.timeManagement}\nStudy Method: ${data.studyMethod}\nMain Reason: ${data.mainReason}`,
+      }, "fCEL09zuXQVmuX5ri").catch(() => { /* silent — email is backup only */ });
+
+      /* Call Mercury 2 AI via serverless function */
+      const res = await fetch("/api/diagnostic/analyze", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
@@ -440,7 +449,7 @@ export default function DiagnosticPage() {
             try {
               const parsed = JSON.parse(line.slice(6));
               if (parsed.content) setReport(p => p + parsed.content);
-              if (parsed.done) { setDiagnosticId(parsed.id); setIsAnalyzing(false); }
+              if (parsed.done) { setIsAnalyzing(false); }
             } catch { /* ignore */ }
           }
         }
@@ -506,7 +515,7 @@ export default function DiagnosticPage() {
               <div>
                 <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: `1px solid ${C.border}` }}>
                   <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: C.amber, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>
-                    Your Diagnostic Report {diagnosticId ? `· #${diagnosticId}` : ""}
+                    Your Diagnostic Report
                   </div>
                   <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 30, fontWeight: 600, letterSpacing: "-0.02em", color: C.charcoal, marginBottom: 6 }}>
                     CA Final — {getValues("group")} · {getValues("isRepeat") === "yes" ? `Attempt ${getValues("attemptCount") || "?"}` : "First attempt"}
@@ -517,7 +526,7 @@ export default function DiagnosticPage() {
                 {isAnalyzing && <span style={{ display: "inline-block", width: 2, height: 18, background: C.amber, marginLeft: 4, animation: "blink 0.8s ease-in-out infinite", verticalAlign: "middle" }} />}
                 {!isAnalyzing && (
                   <div style={{ marginTop: 48, paddingTop: 32, borderTop: `1px solid ${C.border}`, display: "flex", gap: 12 }}>
-                    <button onClick={() => { setSection(0); setReport(""); setDiagnosticId(null); }} className="btn-secondary">New Diagnostic</button>
+                    <button onClick={() => { setSection(0); setReport(""); }} className="btn-secondary">New Diagnostic</button>
                     <button onClick={() => window.print()} className="btn-primary">Save as PDF →</button>
                   </div>
                 )}
